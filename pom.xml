@@ -22,6 +22,7 @@
     <java.version>1.17</java.version>
     <nats.version>2.16.6</nats.version>
     <testcontainers.version>1.17.6</testcontainers.version>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <dependencies>
