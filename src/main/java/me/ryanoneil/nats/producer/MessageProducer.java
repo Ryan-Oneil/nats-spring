@@ -11,9 +11,7 @@ import java.nio.charset.StandardCharsets;
 import me.ryanoneil.nats.exception.MessageProducerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Component
 public class MessageProducer<T> {
 
     private final Logger logger = LoggerFactory.getLogger(MessageProducer.class);
@@ -25,7 +23,7 @@ public class MessageProducer<T> {
         this.mapper = objectMapper;
     }
 
-    public Message createMessage(T data, String subject)  {
+    public Message createMessage(T data, String subject) {
         try {
             String jsonData = mapper.writeValueAsString(data);
 
