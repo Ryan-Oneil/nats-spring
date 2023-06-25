@@ -4,7 +4,6 @@ package me.ryanoneil.nats.consumer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -18,8 +17,6 @@ import io.nats.client.Dispatcher;
 import io.nats.client.JetStream;
 import io.nats.client.JetStreamApiException;
 import io.nats.client.JetStreamSubscription;
-import io.nats.client.Message;
-import io.nats.client.MessageHandler;
 import io.nats.client.PushSubscribeOptions;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -30,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 //Class needs to be public for accessing methods as part of tests
-public class JetStreamConsumerTest {
+public class JetStreamPullConsumerTest {
 
     private final Method method = this.getClass().getMethods()[0];
 
@@ -42,7 +39,7 @@ public class JetStreamConsumerTest {
 
     private final JetStreamSubscription subscription = mock(JetStreamSubscription.class);
 
-    private final JetStreamConsumer jetStreamConsumer = spy(new JetStreamConsumer(subscriptionDetails, jetStream, connection));
+    private final JetStreamPullConsumer jetStreamPullConsumer = spy(new JetStreamPullConsumer(subscriptionDetails, jetStream, connection));
 
     public void testMethod(String test) {
         throw new MessageHandlerException("MethodRan");
@@ -55,19 +52,8 @@ public class JetStreamConsumerTest {
     }
 
     @Test
-    void createMessageHandlerTest() throws NoSuchMethodException, IllegalAccessException {
-        MessageHandler messageHandler = jetStreamConsumer.createMessageHandler();
-        Message message = mock(Message.class);
-        Mockito.when(message.getData()).thenReturn(new byte[]{'2', '3'});
-
-        assertNotNull(messageHandler);
-        MessageHandlerException exception = assertThrows(MessageHandlerException.class, () ->  messageHandler.onMessage(message));
-        assertEquals("me.ryanoneil.nats.exception.MessageHandlerException: MethodRan", exception.getMessage());
-    }
-
-    @Test
     void buildOptionsTest() {
-        PushSubscribeOptions options = jetStreamConsumer.buildOptions();
+        PushSubscribeOptions options = jetStreamPullConsumer.buildOptions();
 
         assertNotNull(options);
         assertEquals("test", options.getDeliverGroup());
@@ -76,44 +62,44 @@ public class JetStreamConsumerTest {
     @Test
     void isNotActiveTest() throws JetStreamApiException, IOException, NoSuchMethodException, IllegalAccessException {
         Mockito.when(jetStream.subscribe(any(), any(), any(), any(), anyBoolean(), any())).thenReturn(null);
-        jetStreamConsumer.start();
-        boolean isActive = jetStreamConsumer.isActive();
+        jetStreamPullConsumer.start();
+        boolean isActive = jetStreamPullConsumer.isActive();
 
         assertFalse(isActive);
     }
 
     @Test
     void isNotActiveNullTest() {
-        boolean isActive = jetStreamConsumer.isActive();
+        boolean isActive = jetStreamPullConsumer.isActive();
 
         assertFalse(isActive);
     }
 
     @Test
-    void isActive() throws JetStreamApiException, IOException, NoSuchMethodException, IllegalAccessException {
+    void isActive() {
         Mockito.when(subscription.isActive()).thenReturn(true);
 
-        jetStreamConsumer.start();
+        jetStreamPullConsumer.start();
 
-        assertTrue(jetStreamConsumer.isActive());
+        assertTrue(jetStreamPullConsumer.isActive());
     }
 
     @Test
-    void startWhenActive() throws JetStreamApiException, IOException, NoSuchMethodException, IllegalAccessException {
+    void startWhenActive() throws JetStreamApiException, IOException {
         Mockito.when(subscription.isActive()).thenReturn(true);
 
-        jetStreamConsumer.start();
-        jetStreamConsumer.start();
+        jetStreamPullConsumer.start();
+        jetStreamPullConsumer.start();
 
         Mockito.verify(jetStream, times(1)).subscribe(any(), any(), any(), any(), anyBoolean(), any());
     }
 
     @Test
-    void stopWhenActive() throws JetStreamApiException, IOException, NoSuchMethodException, IllegalAccessException {
+    void stopWhenActive() {
         Mockito.when(subscription.isActive()).thenReturn(true);
 
-        jetStreamConsumer.start();
-        jetStreamConsumer.stop();
+        jetStreamPullConsumer.start();
+        jetStreamPullConsumer.stop();
 
         Mockito.verify(subscription, times(1)).unsubscribe();
     }
@@ -122,7 +108,7 @@ public class JetStreamConsumerTest {
     void stopWhenNotActive() {
         Mockito.when(subscription.isActive()).thenReturn(false);
 
-        jetStreamConsumer.stop();
+        jetStreamPullConsumer.stop();
 
         Mockito.verify(subscription, times(0)).unsubscribe();
     }

@@ -2,15 +2,12 @@ package me.ryanoneil.nats.annotation;
 
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
-import io.nats.client.JetStreamApiException;
 import jakarta.annotation.PreDestroy;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import me.ryanoneil.nats.consumer.JetStreamConsumer;
-import me.ryanoneil.nats.exception.MessageHandlerException;
+import me.ryanoneil.nats.consumer.JetStreamPullConsumer;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -22,7 +19,7 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
     private final Connection connection;
     private final JetStream jetStream;
     private List<NatsSubscriptionDetails> subscriptionDetails;
-    private final List<JetStreamConsumer> consumers;
+    private final List<JetStreamPullConsumer> consumers;
 
     public NatsListenerAnnotationBeanProcessor(Connection connection, JetStream jetStream) {
         this.connection = connection;
@@ -56,28 +53,24 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
         return bean;
     }
 
-    public JetStreamConsumer createStreamConsumer(NatsSubscriptionDetails subscription) {
-        JetStreamConsumer jetStreamConsumer = new JetStreamConsumer(subscription, jetStream, connection);
+    public JetStreamPullConsumer createStreamConsumer(NatsSubscriptionDetails subscription) {
+        JetStreamPullConsumer jetStreamPullConsumer = new JetStreamPullConsumer(subscription, jetStream, connection);
 
-        try {
-            jetStreamConsumer.start();
+        jetStreamPullConsumer.start();
 
-            return jetStreamConsumer;
-        } catch (NoSuchMethodException | IOException | JetStreamApiException | IllegalAccessException e) {
-            throw new MessageHandlerException(e);
-        }
+        return jetStreamPullConsumer;
     }
 
     @PreDestroy
     public void cleanup() {
-        consumers.forEach(JetStreamConsumer::stop);
+        consumers.forEach(JetStreamPullConsumer::stop);
     }
 
     public List<NatsSubscriptionDetails> getSubscriptionDetails() {
         return subscriptionDetails;
     }
 
-    public List<JetStreamConsumer> getConsumers() {
+    public List<JetStreamPullConsumer> getConsumers() {
         return consumers;
     }
 }

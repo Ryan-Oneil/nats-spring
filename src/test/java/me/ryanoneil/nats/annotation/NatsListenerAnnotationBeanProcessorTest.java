@@ -10,7 +10,7 @@ import io.nats.client.Connection;
 import io.nats.client.JetStream;
 import io.nats.client.JetStreamApiException;
 import java.io.IOException;
-import me.ryanoneil.nats.exception.MessageHandlerException;
+import me.ryanoneil.nats.exception.ConsumerCreationException;
 import me.ryanoneil.nats.sample.DummyListener;
 import me.ryanoneil.nats.sample.MultipleThreadListener;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +57,7 @@ class NatsListenerAnnotationBeanProcessorTest {
         processor.postProcessBeforeInitialization(dummyListener, "Dummy");
 
 
-        assertThrows(MessageHandlerException.class, () -> processor.postProcessAfterInitialization(dummyListener, "Dummy"));
+        assertThrows(ConsumerCreationException.class, () -> processor.postProcessAfterInitialization(dummyListener, "Dummy"));
     }
 
     @Test
