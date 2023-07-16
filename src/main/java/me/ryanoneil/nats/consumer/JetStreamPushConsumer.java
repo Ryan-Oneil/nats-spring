@@ -7,12 +7,20 @@ import io.nats.client.JetStreamApiException;
 import io.nats.client.PushSubscribeOptions;
 import java.io.IOException;
 import me.ryanoneil.nats.exception.ConsumerCreationException;
-import me.ryanoneil.nats.model.NatsSubscriptionDetails;
+import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
 import me.ryanoneil.nats.util.NatsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class JetStreamPullConsumer extends Consumer {
-    public JetStreamPullConsumer(NatsSubscriptionDetails subscriptionDetails, JetStream jetStream, Connection connection) {
-        super(subscriptionDetails, jetStream, connection);
+public class JetStreamPushConsumer extends Consumer {
+
+    private final Logger logger = LoggerFactory.getLogger(JetStreamPushConsumer.class);
+
+    private final JetStreamNatsSubscriptionDetails subscriptionDetails;
+
+    public JetStreamPushConsumer(JetStreamNatsSubscriptionDetails subscriptionDetails, JetStream jetStream, Connection connection) {
+        super(jetStream, connection);
+        this.subscriptionDetails = subscriptionDetails;
     }
 
     @Override
@@ -33,6 +41,11 @@ public class JetStreamPullConsumer extends Consumer {
                 messageHandler,
                 false,
                 subscribeOptions);
+
+            if (logger.isInfoEnabled()) {
+                logger.info("Connected jet stream consumer to steam={} subject={} with queue={}", subscriptionDetails.streamName(),
+                    subscriptionDetails.subject(), subscriptionDetails.queueName());
+            }
         } catch (JetStreamApiException | IOException e) {
             throw new ConsumerCreationException(e);
         }

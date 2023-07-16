@@ -21,17 +21,17 @@ import io.nats.client.PushSubscribeOptions;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import me.ryanoneil.nats.exception.MessageHandlerException;
-import me.ryanoneil.nats.model.NatsSubscriptionDetails;
+import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 //Class needs to be public for accessing methods as part of tests
-public class JetStreamPullConsumerTest {
+public class JetStreamPushConsumerTest {
 
     private final Method method = this.getClass().getMethods()[0];
 
-    private final NatsSubscriptionDetails subscriptionDetails = new NatsSubscriptionDetails("test", "test", method, this, "tests", 1);
+    private final JetStreamNatsSubscriptionDetails subscriptionDetails = new JetStreamNatsSubscriptionDetails("test", "test", method, this, 1, "tests");
 
     private final JetStream jetStream = mock(JetStream.class);
 
@@ -39,7 +39,7 @@ public class JetStreamPullConsumerTest {
 
     private final JetStreamSubscription subscription = mock(JetStreamSubscription.class);
 
-    private final JetStreamPullConsumer jetStreamPullConsumer = spy(new JetStreamPullConsumer(subscriptionDetails, jetStream, connection));
+    private final JetStreamPushConsumer jetStreamPushConsumer = spy(new JetStreamPushConsumer(subscriptionDetails, jetStream, connection));
 
     public void testMethod(String test) {
         throw new MessageHandlerException("MethodRan");
@@ -53,24 +53,24 @@ public class JetStreamPullConsumerTest {
 
     @Test
     void buildOptionsTest() {
-        PushSubscribeOptions options = jetStreamPullConsumer.buildOptions();
+        PushSubscribeOptions options = jetStreamPushConsumer.buildOptions();
 
         assertNotNull(options);
         assertEquals("test", options.getDeliverGroup());
     }
 
     @Test
-    void isNotActiveTest() throws JetStreamApiException, IOException, NoSuchMethodException, IllegalAccessException {
+    void isNotActiveTest() throws JetStreamApiException, IOException {
         Mockito.when(jetStream.subscribe(any(), any(), any(), any(), anyBoolean(), any())).thenReturn(null);
-        jetStreamPullConsumer.start();
-        boolean isActive = jetStreamPullConsumer.isActive();
+        jetStreamPushConsumer.start();
+        boolean isActive = jetStreamPushConsumer.isActive();
 
         assertFalse(isActive);
     }
 
     @Test
     void isNotActiveNullTest() {
-        boolean isActive = jetStreamPullConsumer.isActive();
+        boolean isActive = jetStreamPushConsumer.isActive();
 
         assertFalse(isActive);
     }
@@ -79,17 +79,17 @@ public class JetStreamPullConsumerTest {
     void isActive() {
         Mockito.when(subscription.isActive()).thenReturn(true);
 
-        jetStreamPullConsumer.start();
+        jetStreamPushConsumer.start();
 
-        assertTrue(jetStreamPullConsumer.isActive());
+        assertTrue(jetStreamPushConsumer.isActive());
     }
 
     @Test
     void startWhenActive() throws JetStreamApiException, IOException {
         Mockito.when(subscription.isActive()).thenReturn(true);
 
-        jetStreamPullConsumer.start();
-        jetStreamPullConsumer.start();
+        jetStreamPushConsumer.start();
+        jetStreamPushConsumer.start();
 
         Mockito.verify(jetStream, times(1)).subscribe(any(), any(), any(), any(), anyBoolean(), any());
     }
@@ -98,8 +98,8 @@ public class JetStreamPullConsumerTest {
     void stopWhenActive() {
         Mockito.when(subscription.isActive()).thenReturn(true);
 
-        jetStreamPullConsumer.start();
-        jetStreamPullConsumer.stop();
+        jetStreamPushConsumer.start();
+        jetStreamPushConsumer.stop();
 
         Mockito.verify(subscription, times(1)).unsubscribe();
     }
@@ -108,7 +108,7 @@ public class JetStreamPullConsumerTest {
     void stopWhenNotActive() {
         Mockito.when(subscription.isActive()).thenReturn(false);
 
-        jetStreamPullConsumer.stop();
+        jetStreamPushConsumer.stop();
 
         Mockito.verify(subscription, times(0)).unsubscribe();
     }

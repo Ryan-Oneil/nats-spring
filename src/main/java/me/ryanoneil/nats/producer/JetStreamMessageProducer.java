@@ -12,13 +12,13 @@ import me.ryanoneil.nats.exception.MessageProducerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MessageProducer<T> {
+public class JetStreamMessageProducer<T> {
 
-    private final Logger logger = LoggerFactory.getLogger(MessageProducer.class);
+    private final Logger logger = LoggerFactory.getLogger(JetStreamMessageProducer.class);
     private final JetStream jetStream;
     private final ObjectMapper mapper;
 
-    public MessageProducer(JetStream jetStream, ObjectMapper objectMapper) {
+    public JetStreamMessageProducer(JetStream jetStream, ObjectMapper objectMapper) {
         this.jetStream = jetStream;
         this.mapper = objectMapper;
     }

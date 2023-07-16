@@ -7,10 +7,12 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface NatsListener {
+public @interface JetStreamListener {
     String subject();
 
     String queue() default "";
+
+    String stream() default "";
 
     int threads() default 1;
 }

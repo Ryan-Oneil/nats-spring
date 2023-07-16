@@ -34,8 +34,8 @@ public class NatsAutoConfig {
     }
 
     @Bean
-    public NatsListenerAnnotationBeanProcessor natsListenerAnnotationBeanProcessor(Connection connection, JetStream jetStream) {
-        return new NatsListenerAnnotationBeanProcessor(connection, jetStream);
+    public NatsListenerAnnotationBeanProcessor natsListenerAnnotationBeanProcessor(Connection connection) {
+        return new NatsListenerAnnotationBeanProcessor(connection);
     }
 
 }

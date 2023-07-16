@@ -18,20 +18,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class MessageProducerTest {
+class JetStreamMessageProducerTest {
 
     private final JetStream jetStream = mock(JetStream.class);
 
     private final ObjectMapper objectMapper = spy(ObjectMapper.class);
 
-    private final MessageProducer<String> messageProducer = new MessageProducer<>(jetStream, objectMapper);
+    private final JetStreamMessageProducer<String> jetStreamMessageProducer = new JetStreamMessageProducer<>(jetStream, objectMapper);
 
     private final String exampleMessage = "test";
 
     @Test
     void createMessageTest() {
 
-        Message message = messageProducer.createMessage(exampleMessage, "example");
+        Message message = jetStreamMessageProducer.createMessage(exampleMessage, "example");
         String data = new String(message.getData(), StandardCharsets.UTF_8);
 
         Assertions.assertNotNull(message);
@@ -41,7 +41,7 @@ class MessageProducerTest {
 
     @Test
     void createAndSendMessageTest() throws JetStreamApiException, IOException {
-        messageProducer.createAndSendMessage(exampleMessage, "test");
+        jetStreamMessageProducer.createAndSendMessage(exampleMessage, "test");
 
         Mockito.verify(jetStream, times(1)).publish(any());
     }
@@ -50,28 +50,28 @@ class MessageProducerTest {
     void createAndSendMessageExceptionTest() throws JetStreamApiException, IOException {
         Mockito.when(jetStream.publish(any())).thenThrow(JetStreamApiException.class);
 
-        assertThrows(MessageProducerException.class, () ->  messageProducer.createAndSendMessage(exampleMessage, "test"));
+        assertThrows(MessageProducerException.class, () ->  jetStreamMessageProducer.createAndSendMessage(exampleMessage, "test"));
     }
 
     @Test
     void createMessageExceptionTest() throws JsonProcessingException {
         Mockito.when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
 
-        assertThrows(MessageProducerException.class, () ->  messageProducer.createMessage(exampleMessage, "test"));
+        assertThrows(MessageProducerException.class, () ->  jetStreamMessageProducer.createMessage(exampleMessage, "test"));
     }
 
     @Test
     void createAndSendMessageIOExceptionTest() throws JetStreamApiException, IOException {
         Mockito.when(jetStream.publish(any())).thenThrow(IOException.class);
 
-        assertThrows(MessageProducerException.class, () ->  messageProducer.createAndSendMessage(exampleMessage, "test"));
+        assertThrows(MessageProducerException.class, () ->  jetStreamMessageProducer.createAndSendMessage(exampleMessage, "test"));
     }
 
     @Test
     void sendMessageTest() throws JetStreamApiException, IOException {
-        Message message = messageProducer.createMessage(exampleMessage, "test");
+        Message message = jetStreamMessageProducer.createMessage(exampleMessage, "test");
 
-        messageProducer.sendMessage(message);
+        jetStreamMessageProducer.sendMessage(message);
 
         Mockito.verify(jetStream, times(1)).publish(any());
     }

@@ -1,27 +1,30 @@
 package me.ryanoneil.nats.annotation;
 
 import io.nats.client.Connection;
+import io.nats.client.JetStream;
 import jakarta.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import me.ryanoneil.nats.consumer.Consumer;
-import me.ryanoneil.nats.consumer.NatsConsumer;
-import me.ryanoneil.nats.model.NatsSubscriptionDetails;
+import me.ryanoneil.nats.consumer.JetStreamPushConsumer;
+import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
+public class JetStreamListenerAnnotationBeanProcessor implements BeanPostProcessor {
 
     private final Connection connection;
-    private List<NatsSubscriptionDetails> subscriptionDetails;
+    private final JetStream jetStream;
+    private List<JetStreamNatsSubscriptionDetails> subscriptionDetails;
     private final List<Consumer> consumers;
 
-    public NatsListenerAnnotationBeanProcessor(Connection connection) {
+    public JetStreamListenerAnnotationBeanProcessor(Connection connection, JetStream jetStream) {
         this.connection = connection;
+        this.jetStream = jetStream;
         this.subscriptionDetails = new ArrayList<>();
         this.consumers = new ArrayList<>();
     }
@@ -29,12 +32,12 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         subscriptionDetails = Arrays.stream(bean.getClass().getMethods())
-            .filter(method -> Objects.nonNull(method.getAnnotation(NatsListener.class)))
+            .filter(method -> Objects.nonNull(method.getAnnotation(JetStreamListener.class)))
             .map(method -> {
-                NatsListener natsListener = method.getAnnotation(NatsListener.class);
+                JetStreamListener streamListener = method.getAnnotation(JetStreamListener.class);
 
-                return new NatsSubscriptionDetails(natsListener.subject(), natsListener.queue(), method, bean,
-                    natsListener.threads());
+                return new JetStreamNatsSubscriptionDetails(streamListener.subject(), streamListener.queue(), method, bean,
+                    streamListener.threads(), streamListener.stream());
             })
             .toList();
 
@@ -45,17 +48,18 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         subscriptionDetails.forEach(natsSubscriptionDetails -> {
             for (int i = 0; i < natsSubscriptionDetails.threads(); i++) {
-                consumers.add(createNatsConsumer(natsSubscriptionDetails));
+                consumers.add(createPushStreamConsumer(natsSubscriptionDetails));
             }
         });
         return bean;
     }
 
-    public NatsConsumer createNatsConsumer(NatsSubscriptionDetails subscription) {
-        NatsConsumer natsConsumer = new NatsConsumer(subscription, connection);
-        natsConsumer.start();
+    public JetStreamPushConsumer createPushStreamConsumer(JetStreamNatsSubscriptionDetails subscription) {
+        JetStreamPushConsumer jetStreamPushConsumer = new JetStreamPushConsumer(subscription, jetStream, connection);
 
-        return natsConsumer;
+        jetStreamPushConsumer.start();
+
+        return jetStreamPushConsumer;
     }
 
     @PreDestroy
@@ -63,7 +67,7 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
         consumers.forEach(Consumer::stop);
     }
 
-    public List<NatsSubscriptionDetails> getSubscriptionDetails() {
+    public List<JetStreamNatsSubscriptionDetails> getSubscriptionDetails() {
         return subscriptionDetails;
     }
 

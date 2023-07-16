@@ -12,16 +12,16 @@ public class NatsUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static MessageHandler createMessageHandler(NatsSubscriptionDetails subscriptionDetails)  {
+    public static MessageHandler createMessageHandler(NatsSubscriptionDetails natsSubscriptionDetails)  {
         try {
-            MethodHandle methodHandler = MethodUtil.getMethodHandler(subscriptionDetails.handler());
+            MethodHandle methodHandler = MethodUtil.getMethodHandler(natsSubscriptionDetails.handler());
 
             return msg -> {
                 try {
                     msg.ack();
-                    Object object = objectMapper.readValue(new String(msg.getData()), MethodUtil.getParameterType(subscriptionDetails.handler(), 0));
+                    Object object = objectMapper.readValue(new String(msg.getData()), MethodUtil.getParameterType(natsSubscriptionDetails.handler(), 0));
 
-                    methodHandler.invoke(subscriptionDetails.listener(), object);
+                    methodHandler.invoke(natsSubscriptionDetails.listener(), object);
                 } catch (Throwable e) {
                     throw new MessageHandlerException(e);
                 }

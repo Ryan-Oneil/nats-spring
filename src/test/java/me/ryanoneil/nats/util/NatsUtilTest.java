@@ -16,7 +16,7 @@ public class NatsUtilTest {
 
     private final Method method = this.getClass().getMethods()[0];
 
-    private final NatsSubscriptionDetails subscriptionDetails = new NatsSubscriptionDetails("test", "test", method, this, "tests", 1);
+    private final NatsSubscriptionDetails subscriptionDetails = new NatsSubscriptionDetails("test", "test", method, this, 1);
 
     public void testMethod(String test) {
         throw new MessageHandlerException("MethodRan");
