@@ -6,6 +6,7 @@ import me.ryanoneil.nats.model.NatsSubscriptionDetails;
 import me.ryanoneil.nats.util.NatsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 public class NatsConsumer extends Consumer {
 
@@ -26,7 +27,11 @@ public class NatsConsumer extends Consumer {
         var messageHandler = NatsUtil.createMessageHandler(subscriptionDetails);
         Dispatcher dispatcher = connection.createDispatcher(messageHandler);
 
-        subscription = dispatcher.subscribe(subscriptionDetails.subject(), subscriptionDetails.queueName(), messageHandler);
+        if (StringUtils.hasText(subscriptionDetails.queueName())) {
+            dispatcher.subscribe(subscriptionDetails.subject(), subscriptionDetails.queueName(), messageHandler);
+        } else {
+            dispatcher.subscribe(subscriptionDetails.subject(), messageHandler);
+        }
 
         if (logger.isInfoEnabled()) {
             logger.info("Connected nats consumer to subject={} with queue={}", subscriptionDetails.subject(), subscriptionDetails.queueName());
