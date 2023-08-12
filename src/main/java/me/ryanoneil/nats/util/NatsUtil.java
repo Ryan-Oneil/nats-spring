@@ -2,9 +2,10 @@ package me.ryanoneil.nats.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.MessageHandler;
-import java.lang.invoke.MethodHandle;
 import me.ryanoneil.nats.exception.MessageHandlerException;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
+
+import java.lang.invoke.MethodHandle;
 
 public class NatsUtil {
 

@@ -14,6 +14,8 @@ public class NatsConsumer extends Consumer {
 
     private final NatsSubscriptionDetails subscriptionDetails;
 
+    private Dispatcher dispatcher;
+
     public NatsConsumer(NatsSubscriptionDetails subscriptionDetails, Connection connection) {
         super(null, connection);
         this.subscriptionDetails = subscriptionDetails;
@@ -25,12 +27,12 @@ public class NatsConsumer extends Consumer {
             return;
         }
         var messageHandler = NatsUtil.createMessageHandler(subscriptionDetails);
-        Dispatcher dispatcher = connection.createDispatcher(messageHandler);
+        dispatcher = connection.createDispatcher(messageHandler);
 
         if (StringUtils.hasText(subscriptionDetails.queueName())) {
-            dispatcher.subscribe(subscriptionDetails.subject(), subscriptionDetails.queueName(), messageHandler);
+           subscription = dispatcher.subscribe(subscriptionDetails.subject(), subscriptionDetails.queueName(), messageHandler);
         } else {
-            dispatcher.subscribe(subscriptionDetails.subject(), messageHandler);
+            subscription = dispatcher.subscribe(subscriptionDetails.subject(), messageHandler);
         }
 
         if (logger.isInfoEnabled()) {
@@ -38,4 +40,8 @@ public class NatsConsumer extends Consumer {
         }
     }
 
+    @Override
+    public void stop() {
+        dispatcher.unsubscribe(subscriptionDetails.subject());
+    }
 }

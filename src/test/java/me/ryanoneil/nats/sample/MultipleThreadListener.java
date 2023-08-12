@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 public class MultipleThreadListener {
 
     @NatsListener(subject = "multi", threads = 4)
-    public void handleMessage(Test message) {
+    public void handleMessage(SamplePojo message) {
         System.out.println("Received the following from test: " + message);
     }
 
     @JetStreamListener(subject = "multi", threads = 4)
-    public void handleJetStreamMessage(Test message) {
+    public void handleJetStreamMessage(SamplePojo message) {
         System.out.println("Received the following from test: " + message);
     }
 }

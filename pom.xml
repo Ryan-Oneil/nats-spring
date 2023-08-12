@@ -23,6 +23,7 @@
     <nats.version>2.16.6</nats.version>
     <testcontainers.version>1.17.6</testcontainers.version>
     <maven.compiler.release>17</maven.compiler.release>
+    <awaitility.version>4.2.0</awaitility.version>
   </properties>
 
   <dependencies>
@@ -52,6 +53,13 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
       <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>${awaitility.version}</version>
       <scope>test</scope>
     </dependency>
 

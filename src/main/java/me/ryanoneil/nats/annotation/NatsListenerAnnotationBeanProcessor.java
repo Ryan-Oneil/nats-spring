@@ -2,18 +2,17 @@ package me.ryanoneil.nats.annotation;
 
 import io.nats.client.Connection;
 import jakarta.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import me.ryanoneil.nats.consumer.Consumer;
 import me.ryanoneil.nats.consumer.NatsConsumer;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Component;
 
-@Component
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
 
     private final Connection connection;

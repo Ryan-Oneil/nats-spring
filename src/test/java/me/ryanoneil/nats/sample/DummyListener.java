@@ -7,18 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class DummyListener {
 
-    public int natsMessageCount = 0;
-    public int jetStreamMessageCount = 0;
-
     @NatsListener(subject = "request")
-    public void handleMessage(Test message) {
+    public void handleMessage(SamplePojo message) {
         System.out.println("Received the following from nats test: " + message);
-        natsMessageCount++;
     }
 
     @JetStreamListener(subject = "request")
-    public void handleJetStreamMessage(Test message) {
+    public void handleJetStreamMessage(SamplePojo message) {
         System.out.println("Received the following from jetstream test: " + message);
-        jetStreamMessageCount++;
     }
 }
