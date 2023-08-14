@@ -42,6 +42,9 @@ public class NatsConsumer extends Consumer {
 
     @Override
     public void stop() {
+        if (!isActive()) {
+            return;
+        }
         dispatcher.unsubscribe(subscriptionDetails.subject());
     }
 }

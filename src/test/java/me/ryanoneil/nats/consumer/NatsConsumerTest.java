@@ -1,22 +1,22 @@
 package me.ryanoneil.nats.consumer;
 
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Subscription;
-import java.lang.reflect.Method;
 import me.ryanoneil.nats.exception.MessageHandlerException;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.lang.reflect.Method;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 //Class needs to be public for accessing methods as part of tests
 public class NatsConsumerTest {
@@ -85,7 +85,7 @@ public class NatsConsumerTest {
         natsConsumer.start();
         natsConsumer.stop();
 
-        Mockito.verify(subscription, times(1)).unsubscribe();
+        Mockito.verify(dispatcher, times(1)).unsubscribe(anyString());
     }
 
     @Test
@@ -94,6 +94,6 @@ public class NatsConsumerTest {
 
         natsConsumer.stop();
 
-        Mockito.verify(subscription, times(0)).unsubscribe();
+        Mockito.verify(dispatcher, times(0)).unsubscribe(anyString());
     }
 }

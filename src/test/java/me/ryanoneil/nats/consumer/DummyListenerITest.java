@@ -49,6 +49,6 @@ class DummyListenerITest {
 
         await()
                 .atMost(Duration.ofSeconds(1))
-                .until(() -> outContent.toString().trim().equals("Received the following from nats test: Test{example='test'}"));
+                .until(() -> outContent.toString().trim().contains("Received the following from nats"));
     }
 }

@@ -1,16 +1,17 @@
 package me.ryanoneil.nats.util;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
-import java.lang.reflect.Method;
 import me.ryanoneil.nats.exception.MessageHandlerException;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.lang.reflect.Method;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 public class NatsUtilTest {
 
@@ -18,7 +19,7 @@ public class NatsUtilTest {
 
     private final NatsSubscriptionDetails subscriptionDetails = new NatsSubscriptionDetails("test", "test", method, this, 1);
 
-    public void testMethod(String test) {
+    public void testMethod(Message test) {
         throw new MessageHandlerException("MethodRan");
     }
 
