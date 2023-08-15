@@ -1,32 +1,26 @@
 package me.ryanoneil.nats.annotation;
 
 import io.nats.client.Connection;
-import io.nats.client.JetStream;
-import io.nats.client.JetStreamApiException;
 import jakarta.annotation.PreDestroy;
-import java.io.IOException;
+import me.ryanoneil.nats.consumer.Consumer;
+import me.ryanoneil.nats.consumer.NatsConsumer;
+import me.ryanoneil.nats.model.NatsSubscriptionDetails;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import me.ryanoneil.nats.consumer.JetStreamConsumer;
-import me.ryanoneil.nats.exception.MessageHandlerException;
-import me.ryanoneil.nats.model.NatsSubscriptionDetails;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Component;
 
-@Component
 public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
 
     private final Connection connection;
-    private final JetStream jetStream;
     private List<NatsSubscriptionDetails> subscriptionDetails;
-    private final List<JetStreamConsumer> consumers;
+    private final List<NatsConsumer> consumers;
 
-    public NatsListenerAnnotationBeanProcessor(Connection connection, JetStream jetStream) {
+    public NatsListenerAnnotationBeanProcessor(Connection connection) {
         this.connection = connection;
-        this.jetStream = jetStream;
         this.subscriptionDetails = new ArrayList<>();
         this.consumers = new ArrayList<>();
     }
@@ -38,7 +32,7 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
             .map(method -> {
                 NatsListener natsListener = method.getAnnotation(NatsListener.class);
 
-                return new NatsSubscriptionDetails(natsListener.subject(), natsListener.queue(), method, bean, natsListener.stream(),
+                return new NatsSubscriptionDetails(natsListener.subject(), natsListener.queue(), method, bean,
                     natsListener.threads());
             })
             .toList();
@@ -50,34 +44,29 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         subscriptionDetails.forEach(natsSubscriptionDetails -> {
             for (int i = 0; i < natsSubscriptionDetails.threads(); i++) {
-                consumers.add(createStreamConsumer(natsSubscriptionDetails));
+                consumers.add(createNatsConsumer(natsSubscriptionDetails));
             }
         });
         return bean;
     }
 
-    public JetStreamConsumer createStreamConsumer(NatsSubscriptionDetails subscription) {
-        JetStreamConsumer jetStreamConsumer = new JetStreamConsumer(subscription, jetStream, connection);
+    public NatsConsumer createNatsConsumer(NatsSubscriptionDetails subscription) {
+        NatsConsumer natsConsumer = new NatsConsumer(subscription, connection);
+        natsConsumer.start();
 
-        try {
-            jetStreamConsumer.start();
-
-            return jetStreamConsumer;
-        } catch (NoSuchMethodException | IOException | JetStreamApiException | IllegalAccessException e) {
-            throw new MessageHandlerException(e);
-        }
+        return natsConsumer;
     }
 
     @PreDestroy
     public void cleanup() {
-        consumers.forEach(JetStreamConsumer::stop);
+        consumers.forEach(Consumer::stop);
     }
 
     public List<NatsSubscriptionDetails> getSubscriptionDetails() {
         return subscriptionDetails;
     }
 
-    public List<JetStreamConsumer> getConsumers() {
+    public List<NatsConsumer> getConsumers() {
         return consumers;
     }
 }

@@ -1,13 +1,13 @@
 package me.ryanoneil.nats.sample;
 
-public class Test {
+public class SamplePojo {
 
     private String example;
 
-    public Test() {
+    public SamplePojo() {
     }
 
-    public Test(String example) {
+    public SamplePojo(String example) {
         this.example = example;
     }
 
