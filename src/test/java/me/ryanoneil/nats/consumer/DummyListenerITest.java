@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.config.NatsConfig;
+import me.ryanoneil.nats.model.SubscriptionStats;
 import me.ryanoneil.nats.producer.NatsMessageProducer;
 import me.ryanoneil.nats.sample.DummyListener;
 import me.ryanoneil.nats.sample.SamplePojo;
@@ -19,6 +20,7 @@ import java.io.PrintStream;
 import java.time.Duration;
 
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ContextConfiguration(classes = {DummyListener.class, NatsConfig.class, NatsListenerAnnotationBeanProcessor.class})
 @SpringBootTest
@@ -29,6 +31,9 @@ class DummyListenerITest {
 
     @Autowired
     private Connection connection;
+
+    @Autowired
+    private NatsListenerAnnotationBeanProcessor processor;
 
     private NatsMessageProducer<SamplePojo> producer;
 
@@ -44,11 +49,19 @@ class DummyListenerITest {
 
     @Test
     void handleNatsMessageTest() {
+        NatsConsumer consumer = processor.getConsumers().get(0);
+
         producer = new NatsMessageProducer<>(new ObjectMapper(), connection);
         producer.createAndSendMessage(new SamplePojo("test"), "request");
 
         await()
                 .atMost(Duration.ofSeconds(1))
                 .until(() -> outContent.toString().trim().contains("Received the following from nats"));
+
+        SubscriptionStats stats = consumer.getStats();
+
+        assertEquals("request", stats.subject());
+        assertEquals("", stats.queueName());
+        assertEquals(1, stats.delivered());
     }
 }

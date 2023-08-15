@@ -17,7 +17,7 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
 
     private final Connection connection;
     private List<NatsSubscriptionDetails> subscriptionDetails;
-    private final List<Consumer> consumers;
+    private final List<NatsConsumer> consumers;
 
     public NatsListenerAnnotationBeanProcessor(Connection connection) {
         this.connection = connection;
@@ -66,7 +66,7 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
         return subscriptionDetails;
     }
 
-    public List<Consumer> getConsumers() {
+    public List<NatsConsumer> getConsumers() {
         return consumers;
     }
 }

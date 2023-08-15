@@ -12,8 +12,7 @@ import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -95,5 +94,39 @@ public class NatsConsumerTest {
         natsConsumer.stop();
 
         Mockito.verify(dispatcher, times(0)).unsubscribe(anyString());
+    }
+
+    @Test
+    void statsTest() {
+        Mockito.when(subscription.getSubject()).thenReturn("test");
+        Mockito.when(subscription.getQueueName()).thenReturn("test");
+        Mockito.when(subscription.getDeliveredCount()).thenReturn(1L);
+        Mockito.when(subscription.getDroppedCount()).thenReturn(1L);
+        Mockito.when(subscription.getPendingMessageCount()).thenReturn(1L);
+        Mockito.when(subscription.getPendingMessageLimit()).thenReturn(1L);
+        Mockito.when(subscription.isActive()).thenReturn(true);
+
+        natsConsumer.start();
+
+        var stats = natsConsumer.getStats();
+
+        assertEquals("test", stats.subject());
+        assertEquals("test", stats.queueName());
+        assertEquals(1L, stats.delivered());
+        assertEquals(1L, stats.dropped());
+        assertEquals(1L, stats.pending());
+        assertEquals(1L, stats.pendingLimit());
+    }
+
+    @Test
+    void statsNotActiveTest() {
+        var stats = natsConsumer.getStats();
+
+        assertEquals("test", stats.subject());
+        assertEquals("test", stats.queueName());
+        assertEquals(0, stats.delivered());
+        assertEquals(0, stats.dropped());
+        assertEquals(0, stats.pending());
+        assertEquals(0, stats.pendingLimit());
     }
 }

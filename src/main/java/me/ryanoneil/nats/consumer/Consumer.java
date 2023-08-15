@@ -3,6 +3,7 @@ package me.ryanoneil.nats.consumer;
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
 import io.nats.client.Subscription;
+import me.ryanoneil.nats.model.SubscriptionStats;
 
 public abstract class Consumer {
 
@@ -26,5 +27,13 @@ public abstract class Consumer {
             return;
         }
         subscription.unsubscribe();
+    }
+
+    public SubscriptionStats getStats() {
+        String queueName = subscription.getQueueName() == null ? "" : subscription.getQueueName();
+
+        return new SubscriptionStats(subscription.getSubject(), queueName, subscription.getDeliveredCount(),
+            subscription.getDroppedCount(), subscription.getPendingMessageCount(), subscription.getPendingMessageLimit(),
+                isActive());
     }
 }
