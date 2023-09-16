@@ -5,11 +5,13 @@ import io.nats.client.JetStream;
 import io.nats.client.Nats;
 import io.nats.client.Options;
 import jakarta.annotation.PreDestroy;
-import java.io.IOException;
+import me.ryanoneil.nats.actuator.BrokerHealth;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+
+import java.io.IOException;
 
 @Configuration
 public class NatsConfig {
@@ -34,6 +36,11 @@ public class NatsConfig {
     @Bean
     public JetStream jetStream() throws IOException, InterruptedException {
         return connection().jetStream();
+    }
+
+    @Bean(name = "broker")
+    public BrokerHealth brokerHealth(Connection connection) {
+        return new BrokerHealth(connection);
     }
 
     @PreDestroy

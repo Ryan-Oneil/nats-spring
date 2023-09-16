@@ -49,7 +49,7 @@ class DummyListenerITest {
 
     @Test
     void handleNatsMessageTest() {
-        NatsConsumer consumer = processor.getConsumers().get(0);
+        NatsConsumer consumer = (NatsConsumer) processor.getConsumers().get(0);
 
         producer = new NatsMessageProducer<>(new ObjectMapper(), connection);
         producer.createAndSendMessage(new SamplePojo("test"), "request");

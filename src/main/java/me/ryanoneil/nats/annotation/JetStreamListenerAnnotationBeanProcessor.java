@@ -3,18 +3,17 @@ package me.ryanoneil.nats.annotation;
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
 import jakarta.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import me.ryanoneil.nats.consumer.Consumer;
 import me.ryanoneil.nats.consumer.JetStreamPushConsumer;
 import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Component;
 
-@Component
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 public class JetStreamListenerAnnotationBeanProcessor implements BeanPostProcessor {
 
     private final Connection connection;
