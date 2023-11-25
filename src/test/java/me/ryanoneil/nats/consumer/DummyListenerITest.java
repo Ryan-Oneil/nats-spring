@@ -32,8 +32,6 @@ class DummyListenerITest {
     @Autowired
     private NatsListenerAnnotationBeanProcessor processor;
 
-    private NatsMessageProducer<SamplePojo> producer;
-
     @BeforeEach
     public void setUpStreams() {
         System.setOut(new PrintStream(outContent));
@@ -48,7 +46,7 @@ class DummyListenerITest {
     void handleNatsMessageTest() {
         NatsConsumer consumer = (NatsConsumer) processor.getConsumers().get(0);
 
-        producer = new NatsMessageProducer<>(new ObjectMapper(), connection);
+        NatsMessageProducer<SamplePojo> producer = new NatsMessageProducer<>(new ObjectMapper(), connection);
         producer.createAndSendMessage(new SamplePojo("test"), "request");
 
         await()
