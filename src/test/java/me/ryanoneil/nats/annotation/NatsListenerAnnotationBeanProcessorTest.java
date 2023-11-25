@@ -6,6 +6,7 @@ import static org.springframework.test.util.AssertionErrors.assertNotNull;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
+import java.time.Duration;
 import me.ryanoneil.nats.sample.DummyListener;
 import me.ryanoneil.nats.sample.MultipleThreadListener;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +26,7 @@ class NatsListenerAnnotationBeanProcessorTest {
     @BeforeEach
     void setup() {
         Mockito.when(connection.createDispatcher(any())).thenReturn(Mockito.mock(Dispatcher.class));
-        processor = Mockito.spy(new NatsListenerAnnotationBeanProcessor(connection));
+        processor = Mockito.spy(new NatsListenerAnnotationBeanProcessor(connection, Duration.ZERO));
     }
 
     @Test

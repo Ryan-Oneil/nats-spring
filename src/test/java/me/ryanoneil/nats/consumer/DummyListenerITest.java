@@ -1,7 +1,13 @@
 package me.ryanoneil.nats.consumer;
 
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.time.Duration;
 import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.config.NatsConfig;
 import me.ryanoneil.nats.model.SubscriptionStats;
@@ -13,17 +19,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.time.Duration;
-
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-@ContextConfiguration(classes = {DummyListener.class, NatsConfig.class, NatsListenerAnnotationBeanProcessor.class})
-@SpringBootTest
+@SpringBootTest(classes = {DummyListener.class, NatsConfig.class})
 class DummyListenerITest {
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();

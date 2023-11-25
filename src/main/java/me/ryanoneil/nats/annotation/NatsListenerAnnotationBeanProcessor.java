@@ -1,28 +1,25 @@
 package me.ryanoneil.nats.annotation;
 
 import io.nats.client.Connection;
-import jakarta.annotation.PreDestroy;
-import me.ryanoneil.nats.consumer.Consumer;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import me.ryanoneil.nats.consumer.NatsConsumer;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
-public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
+public class NatsListenerAnnotationBeanProcessor extends ConsumerBeanProcessor implements BeanPostProcessor {
 
     private final Connection connection;
     private List<NatsSubscriptionDetails> subscriptionDetails;
-    private final List<Consumer> consumers;
 
-    public NatsListenerAnnotationBeanProcessor(Connection connection) {
+    public NatsListenerAnnotationBeanProcessor(Connection connection, Duration drainDuration) {
+        super(drainDuration);
         this.connection = connection;
         this.subscriptionDetails = new ArrayList<>();
-        this.consumers = new ArrayList<>();
     }
 
     @Override
@@ -57,16 +54,8 @@ public class NatsListenerAnnotationBeanProcessor implements BeanPostProcessor {
         return natsConsumer;
     }
 
-    @PreDestroy
-    public void cleanup() {
-        consumers.forEach(Consumer::stop);
-    }
-
     public List<NatsSubscriptionDetails> getSubscriptionDetails() {
         return subscriptionDetails;
     }
 
-    public List<Consumer> getConsumers() {
-        return consumers;
-    }
 }

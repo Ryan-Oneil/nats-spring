@@ -2,16 +2,22 @@ package me.ryanoneil.nats.config;
 
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
+import io.nats.client.JetStreamApiException;
+import io.nats.client.JetStreamManagement;
 import io.nats.client.Nats;
 import io.nats.client.Options;
+import io.nats.client.api.StreamConfiguration;
 import jakarta.annotation.PreDestroy;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import me.ryanoneil.nats.actuator.BrokerHealth;
+import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
+import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
-
-import java.io.IOException;
 
 @Configuration
 public class NatsConfig {
@@ -34,8 +40,27 @@ public class NatsConfig {
     }
 
     @Bean
-    public JetStream jetStream() throws IOException, InterruptedException {
-        return connection().jetStream();
+    public JetStream jetStream(Connection connection) throws IOException, JetStreamApiException {
+        JetStreamManagement management = connection.jetStreamManagement();
+        StreamConfiguration streamConfiguration = StreamConfiguration.builder()
+            .name("it")
+            .addSubjects("request")
+            .build();
+
+        management.addStream(streamConfiguration);
+
+
+        return connection.jetStream();
+    }
+
+    @Bean
+    public NatsListenerAnnotationBeanProcessor natsListenerAnnotationBeanProcessor(Connection connection) {
+        return new NatsListenerAnnotationBeanProcessor(connection, Duration.of(0, ChronoUnit.SECONDS));
+    }
+
+    @Bean
+    public JetStreamListenerAnnotationBeanProcessor jetStreamListenerAnnotationBeanProcessor(Connection connection, JetStream jetStream) {
+        return new JetStreamListenerAnnotationBeanProcessor(connection, jetStream, Duration.of(0, ChronoUnit.SECONDS));
     }
 
     @Bean(name = "broker")

@@ -1,21 +1,25 @@
 package me.ryanoneil.nats.consumer;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Subscription;
+import java.lang.reflect.Method;
+import java.time.Duration;
 import me.ryanoneil.nats.exception.MessageHandlerException;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.lang.reflect.Method;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 //Class needs to be public for accessing methods as part of tests
 public class NatsConsumerTest {
@@ -40,6 +44,7 @@ public class NatsConsumerTest {
     void setup() {
         Mockito.when(connection.createDispatcher(any())).thenReturn(dispatcher);
         Mockito.when(dispatcher.subscribe(any(), any(), any())).thenReturn(subscription);
+        Mockito.when(subscription.getDispatcher()).thenReturn(dispatcher);
     }
 
     @Test
@@ -78,20 +83,20 @@ public class NatsConsumerTest {
     }
 
     @Test
-    void stopWhenActive() {
+    void stopWhenActive() throws InterruptedException {
         Mockito.when(subscription.isActive()).thenReturn(true);
 
         natsConsumer.start();
-        natsConsumer.stop();
+        natsConsumer.stop(Duration.ZERO);
 
-        Mockito.verify(dispatcher, times(1)).unsubscribe(anyString());
+        Mockito.verify(dispatcher, times(1)).drain(any());
     }
 
     @Test
     void stopWhenNotActive() {
         Mockito.when(subscription.isActive()).thenReturn(false);
 
-        natsConsumer.stop();
+        natsConsumer.stop(Duration.ZERO);
 
         Mockito.verify(dispatcher, times(0)).unsubscribe(anyString());
     }

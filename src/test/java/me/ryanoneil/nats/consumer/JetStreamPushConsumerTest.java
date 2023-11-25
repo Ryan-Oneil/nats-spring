@@ -20,6 +20,7 @@ import io.nats.client.JetStreamSubscription;
 import io.nats.client.PushSubscribeOptions;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.time.Duration;
 import me.ryanoneil.nats.exception.MessageHandlerException;
 import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
 import org.junit.jupiter.api.BeforeEach;
@@ -95,20 +96,20 @@ public class JetStreamPushConsumerTest {
     }
 
     @Test
-    void stopWhenActive() {
+    void stopWhenActive() throws InterruptedException {
         Mockito.when(subscription.isActive()).thenReturn(true);
 
         jetStreamPushConsumer.start();
-        jetStreamPushConsumer.stop();
+        jetStreamPushConsumer.stop(Duration.ZERO);
 
-        Mockito.verify(subscription, times(1)).unsubscribe();
+        Mockito.verify(subscription, times(1)).drain(any());
     }
 
     @Test
     void stopWhenNotActive() {
         Mockito.when(subscription.isActive()).thenReturn(false);
 
-        jetStreamPushConsumer.stop();
+        jetStreamPushConsumer.stop(Duration.ZERO);
 
         Mockito.verify(subscription, times(0)).unsubscribe();
     }
