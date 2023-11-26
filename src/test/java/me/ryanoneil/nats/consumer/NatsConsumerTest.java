@@ -3,6 +3,7 @@ package me.ryanoneil.nats.consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -15,8 +16,10 @@ import io.nats.client.Dispatcher;
 import io.nats.client.Subscription;
 import java.lang.reflect.Method;
 import java.time.Duration;
+import me.ryanoneil.nats.exception.ConsumerDrainingException;
 import me.ryanoneil.nats.exception.MessageHandlerException;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -49,8 +52,10 @@ public class NatsConsumerTest {
 
     @Test
     void isNotActiveTest() {
-        Mockito.when(dispatcher.subscribe(any(), any(), any())).thenReturn(null);
+        Mockito.when(dispatcher.subscribe(any(), any(), any())).thenReturn(subscription);
+        Mockito.when(subscription.isActive()).thenReturn(false);
         natsConsumer.start();
+
         boolean isActive = natsConsumer.isActive();
 
         assertFalse(isActive);
@@ -58,6 +63,7 @@ public class NatsConsumerTest {
 
     @Test
     void isNotActiveNullTest() {
+        Mockito.when(dispatcher.subscribe(any(), any(), any())).thenReturn(null);
         boolean isActive = natsConsumer.isActive();
 
         assertFalse(isActive);
@@ -99,6 +105,18 @@ public class NatsConsumerTest {
         natsConsumer.stop(Duration.ZERO);
 
         Mockito.verify(dispatcher, times(0)).unsubscribe(anyString());
+    }
+
+    @Test
+    void stopWhenActiveExceptionThrown() throws InterruptedException {
+        Mockito.when(subscription.isActive()).thenReturn(true);
+        Mockito.when(dispatcher.drain(any())).thenThrow(InterruptedException.class);
+        natsConsumer.start();
+
+        ConsumerDrainingException exception = assertThrows(ConsumerDrainingException.class, () ->  natsConsumer.stop(Duration.ZERO));
+
+        Mockito.verify(dispatcher, times(0)).unsubscribe(anyString());
+        Assertions.assertEquals("java.lang.InterruptedException", exception.getMessage());
     }
 
     @Test

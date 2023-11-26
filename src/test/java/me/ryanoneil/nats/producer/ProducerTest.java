@@ -1,12 +1,12 @@
 package me.ryanoneil.nats.producer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ProducerTest {
 
@@ -40,6 +40,21 @@ class ProducerTest {
         assertEquals(subject, message.getSubject());
         assertEquals(replyTo, message.getReplyTo());
         assertEquals(String.format(DATA_FORMAT, data), new String(message.getData()));
+    }
+
+    @Test
+    void testCreateMessageWithSubjectAndHeader() {
+        String data = "data";
+        String subject = "subject";
+        Headers headers = new Headers();
+        headers.add("key", "value");
+
+        Message message = producer.createMessage(data, subject, headers);
+
+        assertNotNull(message);
+        assertEquals(subject, message.getSubject());
+        assertEquals(String.format(DATA_FORMAT, data), new String(message.getData()));
+        assertEquals("value", message.getHeaders().getFirst("key"));
     }
 
     @Test

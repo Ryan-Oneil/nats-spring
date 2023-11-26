@@ -28,7 +28,7 @@ public abstract class Consumer {
 
     public CompletableFuture<Boolean> stop(Duration drainDuration) {
         if (!isActive()) {
-            return null;
+            return CompletableFuture.completedFuture(true);
         }
         Dispatcher dispatcher = subscription.getDispatcher();
 
