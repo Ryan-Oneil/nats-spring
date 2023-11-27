@@ -22,9 +22,9 @@ import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 @Configuration
 public class NatsConfig {
 
-    private static final Integer NATS_PORT = 4222;
+    public static final Integer NATS_PORT = 4222;
 
-    private static final Integer NATS_MGMT_PORT = 8222;
+    public static final Integer NATS_MGMT_PORT = 8222;
 
     private GenericContainer<?> nats;
 
