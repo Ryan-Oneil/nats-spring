@@ -29,7 +29,10 @@ public class ConsumerBeanProcessor {
             .forEach(booleanCompletableFuture -> {
                 try {
                     booleanCompletableFuture.get();
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (InterruptedException e) {
+                    logger.error("Error draining consumers during application shutdown", e);
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException e) {
                     logger.error("Error draining consumers during application shutdown", e);
                 }
             });
