@@ -12,7 +12,7 @@ public @interface JetStreamListener {
 
     String queue() default "";
 
-    String stream() default "";
+    String stream();
 
     int threads() default 1;
 }

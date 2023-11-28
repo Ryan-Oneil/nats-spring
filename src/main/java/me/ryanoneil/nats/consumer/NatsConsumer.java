@@ -15,8 +15,6 @@ public class NatsConsumer extends Consumer {
 
     private final NatsSubscriptionDetails subscriptionDetails;
 
-    private Dispatcher dispatcher;
-
     public NatsConsumer(NatsSubscriptionDetails subscriptionDetails, Connection connection) {
         super(null, connection);
         this.subscriptionDetails = subscriptionDetails;
@@ -28,7 +26,7 @@ public class NatsConsumer extends Consumer {
             return;
         }
         var messageHandler = NatsUtil.createMessageHandler(subscriptionDetails);
-        dispatcher = connection.createDispatcher(messageHandler);
+        Dispatcher dispatcher = connection.createDispatcher(messageHandler);
 
         if (StringUtils.hasText(subscriptionDetails.queueName())) {
            subscription = dispatcher.subscribe(subscriptionDetails.subject(), subscriptionDetails.queueName(), messageHandler);
@@ -39,14 +37,6 @@ public class NatsConsumer extends Consumer {
         if (logger.isInfoEnabled()) {
             logger.info("Connected nats consumer to subject={} with queue={}", subscriptionDetails.subject(), subscriptionDetails.queueName());
         }
-    }
-
-    @Override
-    public void stop() {
-        if (!isActive()) {
-            return;
-        }
-        dispatcher.unsubscribe(subscriptionDetails.subject());
     }
 
     @Override

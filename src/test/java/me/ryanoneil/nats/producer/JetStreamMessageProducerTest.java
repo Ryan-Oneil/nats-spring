@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.JetStream;
 import io.nats.client.JetStreamApiException;
 import io.nats.client.Message;
+import io.nats.client.impl.Headers;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import me.ryanoneil.nats.exception.MessageProducerException;
@@ -56,8 +57,12 @@ class JetStreamMessageProducerTest {
     @Test
     void createMessageExceptionTest() throws JsonProcessingException {
         Mockito.when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
+        Headers headers = new Headers();
 
         assertThrows(MessageProducerException.class, () ->  jetStreamMessageProducer.createMessage(exampleMessage, "test"));
+        assertThrows(MessageProducerException.class, () ->  jetStreamMessageProducer.createMessage(exampleMessage, "test", "test"));
+        assertThrows(MessageProducerException.class, () ->  jetStreamMessageProducer.createMessage(exampleMessage, "test", headers));
+        assertThrows(MessageProducerException.class, () ->  jetStreamMessageProducer.createMessage(exampleMessage, "test", "test", headers));
     }
 
     @Test
@@ -70,6 +75,33 @@ class JetStreamMessageProducerTest {
     @Test
     void sendMessageTest() throws JetStreamApiException, IOException {
         Message message = jetStreamMessageProducer.createMessage(exampleMessage, "test");
+
+        jetStreamMessageProducer.sendMessage(message);
+
+        Mockito.verify(jetStream, times(1)).publish(any());
+    }
+
+    @Test
+    void sendMessageWithSubjectTest() throws JetStreamApiException, IOException {
+        Message message = jetStreamMessageProducer.createMessage(exampleMessage, "test", "test");
+
+        jetStreamMessageProducer.sendMessage(message);
+
+        Mockito.verify(jetStream, times(1)).publish(any());
+    }
+
+    @Test
+    void sendMessageTestWithHeaders() throws JetStreamApiException, IOException {
+        Message message = jetStreamMessageProducer.createMessage(exampleMessage, "test", new Headers());
+
+        jetStreamMessageProducer.sendMessage(message);
+
+        Mockito.verify(jetStream, times(1)).publish(any());
+    }
+
+    @Test
+    void sendMessageTestWithReplyAndHeaders() throws JetStreamApiException, IOException {
+        Message message = jetStreamMessageProducer.createMessage(exampleMessage, "test", "test", new Headers());
 
         jetStreamMessageProducer.sendMessage(message);
 

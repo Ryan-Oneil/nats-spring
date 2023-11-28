@@ -11,6 +11,7 @@ import io.nats.client.Dispatcher;
 import io.nats.client.JetStream;
 import io.nats.client.JetStreamApiException;
 import java.io.IOException;
+import java.time.Duration;
 import me.ryanoneil.nats.exception.ConsumerCreationException;
 import me.ryanoneil.nats.sample.DummyListener;
 import me.ryanoneil.nats.sample.MultipleThreadListener;
@@ -33,7 +34,7 @@ class JetStreamListenerAnnotationBeanProcessorTest {
     @BeforeEach
     void setup() {
         Mockito.when(connection.createDispatcher(any())).thenReturn(Mockito.mock(Dispatcher.class));
-        processor = Mockito.spy(new JetStreamListenerAnnotationBeanProcessor(connection, jetStream));
+        processor = Mockito.spy(new JetStreamListenerAnnotationBeanProcessor(connection, jetStream, Duration.ZERO));
     }
 
     @Test

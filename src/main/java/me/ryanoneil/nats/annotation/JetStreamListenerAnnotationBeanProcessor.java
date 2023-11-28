@@ -2,31 +2,27 @@ package me.ryanoneil.nats.annotation;
 
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
-import jakarta.annotation.PreDestroy;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import me.ryanoneil.nats.consumer.Consumer;
 import me.ryanoneil.nats.consumer.JetStreamPushConsumer;
 import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Component;
 
-@Component
-public class JetStreamListenerAnnotationBeanProcessor implements BeanPostProcessor {
+public class JetStreamListenerAnnotationBeanProcessor extends ConsumerBeanProcessor implements BeanPostProcessor {
 
     private final Connection connection;
     private final JetStream jetStream;
     private List<JetStreamNatsSubscriptionDetails> subscriptionDetails;
-    private final List<Consumer> consumers;
 
-    public JetStreamListenerAnnotationBeanProcessor(Connection connection, JetStream jetStream) {
+    public JetStreamListenerAnnotationBeanProcessor(Connection connection, JetStream jetStream, Duration drainDuration) {
+        super(drainDuration);
         this.connection = connection;
         this.jetStream = jetStream;
         this.subscriptionDetails = new ArrayList<>();
-        this.consumers = new ArrayList<>();
     }
 
     @Override
@@ -62,16 +58,8 @@ public class JetStreamListenerAnnotationBeanProcessor implements BeanPostProcess
         return jetStreamPushConsumer;
     }
 
-    @PreDestroy
-    public void cleanup() {
-        consumers.forEach(Consumer::stop);
-    }
-
     public List<JetStreamNatsSubscriptionDetails> getSubscriptionDetails() {
         return subscriptionDetails;
     }
 
-    public List<Consumer> getConsumers() {
-        return consumers;
-    }
 }
