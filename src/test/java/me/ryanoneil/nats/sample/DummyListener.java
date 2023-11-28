@@ -13,7 +13,7 @@ public class DummyListener {
         System.out.println("Received the following from nats test: " + message);
     }
 
-    @JetStreamListener(subject = "request")
+    @JetStreamListener(subject = "request", stream = "it")
     public void handleJetStreamMessage(Message message) {
         System.out.println("Received the following from jetstream test: " + message);
     }

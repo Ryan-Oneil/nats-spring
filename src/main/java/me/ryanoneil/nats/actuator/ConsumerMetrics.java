@@ -1,13 +1,12 @@
 package me.ryanoneil.nats.actuator;
 
+import java.util.List;
 import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.consumer.Consumer;
 import me.ryanoneil.nats.model.SubscriptionStats;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
-
-import java.util.List;
 
 @Endpoint(id = "consumers")
 public class ConsumerMetrics {
@@ -22,7 +21,7 @@ public class ConsumerMetrics {
     }
 
     @ReadOperation
-    public List<SubscriptionStats> metrics() {
+    public List<SubscriptionStats> consumers() {
         List<Consumer> consumers = processor.getConsumers();
         consumers.addAll(jetStreamProcessor.getConsumers());
 

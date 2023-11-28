@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import me.ryanoneil.nats.actuator.BrokerHealth;
+import me.ryanoneil.nats.actuator.ConsumerMetrics;
 import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,6 +62,13 @@ public class NatsAutoConfig {
     @ConditionalOnBean(Connection.class)
     public HealthIndicator brokerHealth(Connection connection) {
         return new BrokerHealth(connection);
+    }
+
+    @Bean
+    @ConditionalOnBean({NatsListenerAnnotationBeanProcessor.class, JetStreamListenerAnnotationBeanProcessor.class})
+    public ConsumerMetrics consumerMetrics(NatsListenerAnnotationBeanProcessor natsListenerAnnotationBeanProcessor,
+        JetStreamListenerAnnotationBeanProcessor jetStreamListenerAnnotationBeanProcessor) {
+        return new ConsumerMetrics(natsListenerAnnotationBeanProcessor, jetStreamListenerAnnotationBeanProcessor);
     }
 
 }

@@ -13,7 +13,7 @@ public class MultipleThreadListener {
         System.out.println("Received the following from test: " + message);
     }
 
-    @JetStreamListener(subject = "multi", threads = 4)
+    @JetStreamListener(subject = "multi", threads = 4, stream = "it")
     public void handleJetStreamMessage(Message message) {
         System.out.println("Received the following from test: " + message);
     }

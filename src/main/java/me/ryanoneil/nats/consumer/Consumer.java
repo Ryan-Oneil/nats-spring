@@ -52,4 +52,13 @@ public abstract class Consumer {
             subscription.getDroppedCount(), subscription.getPendingMessageCount(), subscription.getPendingMessageLimit(),
                 isActive());
     }
+
+    public SubscriptionStats getJetStreamStats(String streamSubject) {
+        String queueName = subscription.getQueueName() == null ? "" : subscription.getQueueName();
+
+        return new SubscriptionStats(streamSubject, queueName, subscription.getDeliveredCount(),
+            subscription.getDroppedCount(), subscription.getPendingMessageCount(), subscription.getPendingMessageLimit(),
+            isActive());
+    }
+
 }

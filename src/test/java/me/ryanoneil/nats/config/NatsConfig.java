@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import me.ryanoneil.nats.actuator.BrokerHealth;
+import me.ryanoneil.nats.actuator.ConsumerMetrics;
 import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
 import org.springframework.context.annotation.Bean;
@@ -44,7 +45,7 @@ public class NatsConfig {
         JetStreamManagement management = connection.jetStreamManagement();
         StreamConfiguration streamConfiguration = StreamConfiguration.builder()
             .name("it")
-            .addSubjects("request")
+            .addSubjects("request", "multi")
             .build();
 
         management.addStream(streamConfiguration);
@@ -66,6 +67,12 @@ public class NatsConfig {
     @Bean(name = "broker")
     public BrokerHealth brokerHealth(Connection connection) {
         return new BrokerHealth(connection);
+    }
+
+    @Bean
+    public ConsumerMetrics consumerMetrics(NatsListenerAnnotationBeanProcessor natsListenerAnnotationBeanProcessor,
+        JetStreamListenerAnnotationBeanProcessor jetStreamListenerAnnotationBeanProcessor) {
+        return new ConsumerMetrics(natsListenerAnnotationBeanProcessor, jetStreamListenerAnnotationBeanProcessor);
     }
 
     @PreDestroy

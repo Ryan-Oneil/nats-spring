@@ -8,6 +8,7 @@ import io.nats.client.PushSubscribeOptions;
 import java.io.IOException;
 import me.ryanoneil.nats.exception.ConsumerCreationException;
 import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
+import me.ryanoneil.nats.model.SubscriptionStats;
 import me.ryanoneil.nats.util.NatsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,4 +59,8 @@ public class JetStreamPushConsumer extends Consumer {
             .build();
     }
 
+    @Override
+    public SubscriptionStats getStats() {
+        return super.getJetStreamStats("%s.%s".formatted(subscriptionDetails.streamName(), subscriptionDetails.subject()));
+    }
 }
