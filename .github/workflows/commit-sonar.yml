@@ -19,7 +19,7 @@ jobs:
         with:
           maven-version: 3.8.2
       - name: Maven verify & package
-        run: mvn --update-snapshots verify -Ptest
+        run: mvn --update-snapshots verify org.pitest:pitest-maven:mutationCoverage -Ptest
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
       - uses: sonarsource/sonarqube-scan-action@master
