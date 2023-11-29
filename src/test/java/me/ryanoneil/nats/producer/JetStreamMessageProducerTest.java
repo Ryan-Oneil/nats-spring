@@ -48,6 +48,27 @@ class JetStreamMessageProducerTest {
     }
 
     @Test
+    void createAndSendMessageWQithReplyTest() throws JetStreamApiException, IOException {
+        jetStreamMessageProducer.createAndSendMessage(exampleMessage, "test", "test");
+
+        Mockito.verify(jetStream, times(1)).publish(any());
+    }
+
+    @Test
+    void createAndSendMessageWithHeadersTest() throws JetStreamApiException, IOException {
+        jetStreamMessageProducer.createAndSendMessage(exampleMessage, "test", new Headers());
+
+        Mockito.verify(jetStream, times(1)).publish(any());
+    }
+
+    @Test
+    void createAndSendMessageAllTest() throws JetStreamApiException, IOException {
+        jetStreamMessageProducer.createAndSendMessage(exampleMessage, "test",  "test", new Headers());
+
+        Mockito.verify(jetStream, times(1)).publish(any());
+    }
+
+    @Test
     void createAndSendMessageExceptionTest() throws JetStreamApiException, IOException {
         Mockito.when(jetStream.publish(any())).thenThrow(JetStreamApiException.class);
 
