@@ -38,14 +38,4 @@ public class NatsSubscriptionDetails {
         return threads;
     }
 
-    @Override
-    public String toString() {
-        return "SubscriptionDetails[" +
-            "subject=" + subject + ", " +
-            "queueName=" + queueName + ", " +
-            "handler=" + handler + ", " +
-            "listener=" + listener + ", " +
-            "threads=" + threads + ']';
-    }
-
 }

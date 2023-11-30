@@ -3,6 +3,7 @@ package me.ryanoneil.nats.consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,6 +17,8 @@ import io.nats.client.Dispatcher;
 import io.nats.client.Subscription;
 import java.lang.reflect.Method;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import me.ryanoneil.nats.exception.ConsumerDrainingException;
 import me.ryanoneil.nats.exception.MessageHandlerException;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
@@ -99,6 +102,20 @@ public class NatsConsumerTest {
     }
 
     @Test
+    void stopWhenActiveNoDispatcher() throws InterruptedException, ExecutionException {
+        Mockito.when(subscription.isActive()).thenReturn(true);
+        Mockito.when(subscription.getDispatcher()).thenReturn(null);
+        Mockito.when(subscription.drain(any())).thenReturn(CompletableFuture.completedFuture(true));
+
+        natsConsumer.start();
+        CompletableFuture<Boolean> drained = natsConsumer.stop(Duration.ZERO);
+
+        assertNotNull(drained);
+        assertTrue(drained.get());
+        Mockito.verify(subscription, times(1)).drain(any());
+    }
+
+    @Test
     void stopWhenNotActive() {
         Mockito.when(subscription.isActive()).thenReturn(false);
 
@@ -116,6 +133,8 @@ public class NatsConsumerTest {
         ConsumerDrainingException exception = assertThrows(ConsumerDrainingException.class, () ->  natsConsumer.stop(Duration.ZERO));
 
         Mockito.verify(dispatcher, times(0)).unsubscribe(anyString());
+
+        assertTrue(Thread.interrupted());
         Assertions.assertEquals("java.lang.InterruptedException", exception.getMessage());
     }
 
