@@ -112,6 +112,7 @@ class NatsListenerAnnotationBeanProcessorTest {
 
         processor.cleanup();
 
+        assertTrue("Thread was not interrupted", Thread.interrupted());
         assertTrue("Clean up did not throw exception", outContent.toString().trim().contains("Error draining consumers during application shutdown"));
     }
 

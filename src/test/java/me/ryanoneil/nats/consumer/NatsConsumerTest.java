@@ -99,6 +99,17 @@ public class NatsConsumerTest {
     }
 
     @Test
+    void stopWhenActiveNoDispatcher() throws InterruptedException {
+        Mockito.when(subscription.isActive()).thenReturn(true);
+        Mockito.when(subscription.getDispatcher()).thenReturn(null);
+
+        natsConsumer.start();
+        natsConsumer.stop(Duration.ZERO);
+
+        Mockito.verify(subscription, times(1)).drain(any());
+    }
+
+    @Test
     void stopWhenNotActive() {
         Mockito.when(subscription.isActive()).thenReturn(false);
 
@@ -116,6 +127,8 @@ public class NatsConsumerTest {
         ConsumerDrainingException exception = assertThrows(ConsumerDrainingException.class, () ->  natsConsumer.stop(Duration.ZERO));
 
         Mockito.verify(dispatcher, times(0)).unsubscribe(anyString());
+
+        assertTrue(Thread.interrupted());
         Assertions.assertEquals("java.lang.InterruptedException", exception.getMessage());
     }
 
