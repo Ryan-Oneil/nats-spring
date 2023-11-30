@@ -125,6 +125,10 @@
           <excludedClasses>
             <excludedClass>me.ryanoneil.nats.config.*</excludedClass>
           </excludedClasses>
+          <outputFormats>
+            <param>XML</param><!-- this generates the reports parsed by the plugin -->
+            <param>HTML</param>
+          </outputFormats>
         </configuration>
       </plugin>
     </plugins>
