@@ -47,7 +47,7 @@ class DummyListenerITest {
         NatsConsumer consumer = (NatsConsumer) processor.getConsumers().get(0);
 
         NatsMessageProducer<SamplePojo> producer = new NatsMessageProducer<>(new ObjectMapper(), connection);
-        producer.createAndSendMessage(new SamplePojo("test"), "request");
+        producer.createAndSendMessage(new SamplePojo("test"), "natsRequest");
 
         await()
                 .atMost(Duration.ofSeconds(1))
@@ -55,7 +55,7 @@ class DummyListenerITest {
 
         SubscriptionStats stats = consumer.getStats();
 
-        assertEquals("request", stats.subject());
+        assertEquals("natsRequest", stats.subject());
         assertEquals("", stats.queueName());
         assertEquals(1, stats.delivered());
     }

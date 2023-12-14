@@ -41,7 +41,7 @@ public class NatsConsumer extends Consumer {
 
     @Override
     public SubscriptionStats getStats() {
-        if (!isActive()) {
+        if (subscription == null) {
             return new SubscriptionStats(subscriptionDetails.subject(), subscriptionDetails.queueName(), 0,
                     0, 0, 0, false);
         }
