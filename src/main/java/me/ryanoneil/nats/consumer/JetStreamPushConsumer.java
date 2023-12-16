@@ -54,9 +54,12 @@ public class JetStreamPushConsumer extends Consumer {
 
     public PushSubscribeOptions buildOptions() {
         return PushSubscribeOptions.builder()
-            .stream(subscriptionDetails.streamName())
-            .deliverGroup(subscriptionDetails.queueName())
-            .build();
+                .stream(subscriptionDetails.streamName())
+                .bind(subscriptionDetails.bind())
+                .durable(subscriptionDetails.durable())
+                .name(subscriptionDetails.name())
+                .ordered(subscriptionDetails.ordered())
+                .build();
     }
 
     @Override

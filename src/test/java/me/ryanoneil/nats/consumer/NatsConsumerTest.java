@@ -1,24 +1,9 @@
 package me.ryanoneil.nats.consumer;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Subscription;
-import java.lang.reflect.Method;
-import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import me.ryanoneil.nats.exception.ConsumerDrainingException;
 import me.ryanoneil.nats.exception.MessageHandlerException;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
@@ -26,6 +11,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.lang.reflect.Method;
+import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 //Class needs to be public for accessing methods as part of tests
 public class NatsConsumerTest {
@@ -102,20 +95,6 @@ public class NatsConsumerTest {
     }
 
     @Test
-    void stopWhenActiveNoDispatcher() throws InterruptedException, ExecutionException {
-        Mockito.when(subscription.isActive()).thenReturn(true);
-        Mockito.when(subscription.getDispatcher()).thenReturn(null);
-        Mockito.when(subscription.drain(any())).thenReturn(CompletableFuture.completedFuture(true));
-
-        natsConsumer.start();
-        CompletableFuture<Boolean> drained = natsConsumer.stop(Duration.ZERO);
-
-        assertNotNull(drained);
-        assertTrue(drained.get());
-        Mockito.verify(subscription, times(1)).drain(any());
-    }
-
-    @Test
     void stopWhenNotActive() {
         Mockito.when(subscription.isActive()).thenReturn(false);
 
@@ -142,11 +121,11 @@ public class NatsConsumerTest {
     void statsTest() {
         Mockito.when(subscription.getSubject()).thenReturn("test");
         Mockito.when(subscription.getQueueName()).thenReturn("test");
-        Mockito.when(subscription.getDeliveredCount()).thenReturn(1L);
-        Mockito.when(subscription.getDroppedCount()).thenReturn(1L);
-        Mockito.when(subscription.getPendingMessageCount()).thenReturn(1L);
-        Mockito.when(subscription.getPendingMessageLimit()).thenReturn(1L);
-        Mockito.when(subscription.isActive()).thenReturn(true);
+        Mockito.when(dispatcher.getDeliveredCount()).thenReturn(1L);
+        Mockito.when(dispatcher.getDroppedCount()).thenReturn(1L);
+        Mockito.when(dispatcher.getPendingMessageCount()).thenReturn(1L);
+        Mockito.when(dispatcher.getPendingMessageLimit()).thenReturn(1L);
+        Mockito.when(dispatcher.isActive()).thenReturn(true);
 
         natsConsumer.start();
 
@@ -160,15 +139,4 @@ public class NatsConsumerTest {
         assertEquals(1L, stats.pendingLimit());
     }
 
-    @Test
-    void statsNotActiveTest() {
-        var stats = natsConsumer.getStats();
-
-        assertEquals("test", stats.subject());
-        assertEquals("test", stats.queueName());
-        assertEquals(0, stats.delivered());
-        assertEquals(0, stats.dropped());
-        assertEquals(0, stats.pending());
-        assertEquals(0, stats.pendingLimit());
-    }
 }

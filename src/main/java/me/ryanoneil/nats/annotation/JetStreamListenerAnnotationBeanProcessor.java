@@ -2,15 +2,16 @@ package me.ryanoneil.nats.annotation;
 
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
+import me.ryanoneil.nats.consumer.JetStreamPushConsumer;
+import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import me.ryanoneil.nats.consumer.JetStreamPushConsumer;
-import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 
 public class JetStreamListenerAnnotationBeanProcessor extends ConsumerBeanProcessor implements BeanPostProcessor {
 
@@ -33,7 +34,8 @@ public class JetStreamListenerAnnotationBeanProcessor extends ConsumerBeanProces
                 JetStreamListener streamListener = method.getAnnotation(JetStreamListener.class);
 
                 return new JetStreamNatsSubscriptionDetails(streamListener.subject(), streamListener.queue(), method, bean,
-                    streamListener.threads(), streamListener.stream());
+                    streamListener.threads(), streamListener.stream(), streamListener.bind(), streamListener.durable(),
+                        streamListener.name(), streamListener.ordered());
             })
             .toList();
 
