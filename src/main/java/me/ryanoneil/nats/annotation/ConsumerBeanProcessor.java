@@ -1,13 +1,15 @@
 package me.ryanoneil.nats.annotation;
 
 import jakarta.annotation.PreDestroy;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 import me.ryanoneil.nats.consumer.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ConsumerBeanProcessor {
 
@@ -39,6 +41,6 @@ public class ConsumerBeanProcessor {
     }
 
     public List<Consumer> getConsumers() {
-        return consumers;
+        return Collections.unmodifiableList(consumers);
     }
 }

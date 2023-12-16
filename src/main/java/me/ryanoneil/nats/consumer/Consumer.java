@@ -4,16 +4,18 @@ import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.JetStream;
 import io.nats.client.Subscription;
-import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
 import me.ryanoneil.nats.exception.ConsumerDrainingException;
 import me.ryanoneil.nats.model.SubscriptionStats;
+
+import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class Consumer {
 
     protected JetStream jetStream;
     protected final Connection connection;
     protected Subscription subscription;
+    protected Dispatcher dispatcher;
 
     protected Consumer(JetStream jetStream, Connection connection) {
         this.jetStream = jetStream;
@@ -30,13 +32,8 @@ public abstract class Consumer {
         if (!isActive()) {
             return CompletableFuture.completedFuture(true);
         }
-        Dispatcher dispatcher = subscription.getDispatcher();
 
         try {
-            // A subscription with a dispatcher needs to be unsubscribed from the dispatcher
-            if (dispatcher == null) {
-                return subscription.drain(drainDuration);
-            }
             return dispatcher.drain(drainDuration);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -48,16 +45,16 @@ public abstract class Consumer {
     public SubscriptionStats getStats() {
         String queueName = subscription.getQueueName() == null ? "" : subscription.getQueueName();
 
-        return new SubscriptionStats(subscription.getSubject(), queueName, subscription.getDeliveredCount(),
-            subscription.getDroppedCount(), subscription.getPendingMessageCount(), subscription.getPendingMessageLimit(),
+        return new SubscriptionStats(subscription.getSubject(), queueName, dispatcher.getDeliveredCount(),
+                dispatcher.getDroppedCount(), dispatcher.getPendingMessageCount(), dispatcher.getPendingMessageLimit(),
                 isActive());
     }
 
     public SubscriptionStats getJetStreamStats(String streamSubject) {
         String queueName = subscription.getQueueName() == null ? "" : subscription.getQueueName();
 
-        return new SubscriptionStats(streamSubject, queueName, subscription.getDeliveredCount(),
-            subscription.getDroppedCount(), subscription.getPendingMessageCount(), subscription.getPendingMessageLimit(),
+        return new SubscriptionStats(streamSubject, queueName, dispatcher.getDeliveredCount(),
+                dispatcher.getDroppedCount(), dispatcher.getPendingMessageCount(), dispatcher.getPendingMessageLimit(),
             isActive());
     }
 

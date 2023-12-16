@@ -1,17 +1,17 @@
 package me.ryanoneil.nats.consumer;
 
 import io.nats.client.Connection;
-import io.nats.client.Dispatcher;
 import io.nats.client.JetStream;
 import io.nats.client.JetStreamApiException;
 import io.nats.client.PushSubscribeOptions;
-import java.io.IOException;
 import me.ryanoneil.nats.exception.ConsumerCreationException;
 import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
 import me.ryanoneil.nats.model.SubscriptionStats;
 import me.ryanoneil.nats.util.NatsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class JetStreamPushConsumer extends Consumer {
 
@@ -32,7 +32,7 @@ public class JetStreamPushConsumer extends Consumer {
         PushSubscribeOptions subscribeOptions = buildOptions();
 
         var messageHandler = NatsUtil.createMessageHandler(subscriptionDetails);
-        Dispatcher dispatcher = connection.createDispatcher(messageHandler);
+        dispatcher = connection.createDispatcher(messageHandler);
 
         try {
             subscription = jetStream.subscribe(

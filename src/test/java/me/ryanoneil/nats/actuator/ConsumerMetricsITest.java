@@ -1,10 +1,7 @@
 package me.ryanoneil.nats.actuator;
 
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import io.nats.client.Connection;
-import java.time.Duration;
+import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.config.NatsConfig;
 import me.ryanoneil.nats.sample.DummyListener;
@@ -16,6 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+
+import java.time.Duration;
+
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = {NatsConfig.class, DummyListener.class}, properties = {"management.endpoints.web.exposure.include=*"})
@@ -31,6 +33,9 @@ class ConsumerMetricsITest {
 
     @Autowired
     private NatsListenerAnnotationBeanProcessor natsListenerAnnotationBeanProcessor;
+
+    @Autowired
+    private JetStreamListenerAnnotationBeanProcessor jetStreamListenerAnnotationBeanProcessor;
 
     @Test
     @Order(1)
@@ -51,18 +56,28 @@ class ConsumerMetricsITest {
             .until(() -> {
                 String response = restTemplate.getForObject("/actuator/consumers", String.class);
 
-                return response.contains("{\"subject\":\"natsRequest\",\"queueName\":\"\",\"delivered\":1,\"dropped\":0,\"pending\":0,\"pendingLimit\":524288,\"isActive\":true}") &&
-                    response.contains("{\"subject\":\"it.request\",\"queueName\":\"\",\"delivered\":0,\"dropped\":0,\"pending\":0,\"pendingLimit\":524288,\"isActive\":true}");
+                return response.equals("[{\"subject\":\"natsRequest\",\"queueName\":\"\",\"delivered\":1,\"dropped\":0,\"pending\":0,\"pendingLimit\":524288,"
+                        + "\"isActive\":true},{\"subject\":\"it.request\",\"queueName\":\"\",\"delivered\":0,\"dropped\":0,\"pending\":0,\"pendingLimit\":524288,\"isActive\":true}]");
             });
     }
 
     @Test
     @Order(3)
-    void metricsConsumerStoppedTest() {
+    void metricsNatsConsumerStoppedTest() {
         natsListenerAnnotationBeanProcessor.cleanup();
         String response = restTemplate.getForObject("/actuator/consumers", String.class);
 
         assertEquals("[{\"subject\":\"natsRequest\",\"queueName\":\"\",\"delivered\":1,\"dropped\":0,\"pending\":0,\"pendingLimit\":524288,"
             + "\"isActive\":false},{\"subject\":\"it.request\",\"queueName\":\"\",\"delivered\":0,\"dropped\":0,\"pending\":0,\"pendingLimit\":524288,\"isActive\":true}]", response);
+    }
+
+    @Test
+    @Order(4)
+    void metricsAllConsumerStoppedTest() {
+        jetStreamListenerAnnotationBeanProcessor.cleanup();
+        String response = restTemplate.getForObject("/actuator/consumers", String.class);
+
+        assertEquals("[{\"subject\":\"natsRequest\",\"queueName\":\"\",\"delivered\":1,\"dropped\":0,\"pending\":0,\"pendingLimit\":524288,"
+                + "\"isActive\":false},{\"subject\":\"it.request\",\"queueName\":\"\",\"delivered\":0,\"dropped\":0,\"pending\":0,\"pendingLimit\":524288,\"isActive\":false}]", response);
     }
 }
