@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DummyListener {
 
-    @NatsListener(subject = "request")
+    @NatsListener(subject = "natsRequest")
     public void handleMessage(Message message) {
         System.out.println("Received the following from nats test: " + message);
     }

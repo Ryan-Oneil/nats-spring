@@ -15,4 +15,13 @@ public @interface JetStreamListener {
     String stream();
 
     int threads() default 1;
+
+    boolean bind() default false;
+
+    String durable() default "";
+
+    String name() default "";
+
+    boolean ordered() default false;
+
 }

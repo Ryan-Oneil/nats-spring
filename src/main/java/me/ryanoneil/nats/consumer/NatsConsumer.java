@@ -1,9 +1,7 @@
 package me.ryanoneil.nats.consumer;
 
 import io.nats.client.Connection;
-import io.nats.client.Dispatcher;
 import me.ryanoneil.nats.model.NatsSubscriptionDetails;
-import me.ryanoneil.nats.model.SubscriptionStats;
 import me.ryanoneil.nats.util.NatsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +24,7 @@ public class NatsConsumer extends Consumer {
             return;
         }
         var messageHandler = NatsUtil.createMessageHandler(subscriptionDetails);
-        Dispatcher dispatcher = connection.createDispatcher(messageHandler);
+        dispatcher = connection.createDispatcher(messageHandler);
 
         if (StringUtils.hasText(subscriptionDetails.queueName())) {
            subscription = dispatcher.subscribe(subscriptionDetails.subject(), subscriptionDetails.queueName(), messageHandler);
@@ -39,12 +37,4 @@ public class NatsConsumer extends Consumer {
         }
     }
 
-    @Override
-    public SubscriptionStats getStats() {
-        if (!isActive()) {
-            return new SubscriptionStats(subscriptionDetails.subject(), subscriptionDetails.queueName(), 0,
-                    0, 0, 0, false);
-        }
-        return super.getStats();
-    }
 }

@@ -3,9 +3,6 @@ package me.ryanoneil.nats.config;
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
 import io.nats.client.Nats;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import me.ryanoneil.nats.actuator.BrokerHealth;
 import me.ryanoneil.nats.actuator.ConsumerMetrics;
 import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
@@ -17,6 +14,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @Configuration
 public class NatsAutoConfig {
@@ -42,8 +43,8 @@ public class NatsAutoConfig {
         value="nats.jetstream.enabled",
         havingValue = "true")
     @ConditionalOnBean(Connection.class)
-    public JetStream jetStream() throws IOException, InterruptedException {
-        return connection().jetStream();
+    public JetStream jetStream(Connection connection) throws IOException {
+        return connection.jetStream();
     }
 
     @Bean

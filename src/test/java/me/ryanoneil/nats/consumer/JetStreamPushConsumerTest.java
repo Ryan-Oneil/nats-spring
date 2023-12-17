@@ -1,44 +1,36 @@
 package me.ryanoneil.nats.consumer;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-
-import io.nats.client.Connection;
-import io.nats.client.Dispatcher;
-import io.nats.client.JetStream;
-import io.nats.client.JetStreamApiException;
-import io.nats.client.JetStreamSubscription;
-import io.nats.client.PushSubscribeOptions;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.time.Duration;
+import io.nats.client.*;
 import me.ryanoneil.nats.exception.MessageHandlerException;
 import me.ryanoneil.nats.model.JetStreamNatsSubscriptionDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 //Class needs to be public for accessing methods as part of tests
 public class JetStreamPushConsumerTest {
 
     private final Method method = this.getClass().getMethods()[0];
 
-    private final JetStreamNatsSubscriptionDetails subscriptionDetails = new JetStreamNatsSubscriptionDetails("test", "test", method, this, 1, "tests");
+    private final JetStreamNatsSubscriptionDetails subscriptionDetails = new JetStreamNatsSubscriptionDetails("test", "test", method, this, 1, "tests",
+            false, "", "", false);
 
     private final JetStream jetStream = mock(JetStream.class);
 
     private final Connection connection = mock(Connection.class);
 
     private final JetStreamSubscription subscription = mock(JetStreamSubscription.class);
+
+    private final Dispatcher dispatcher = mock(Dispatcher.class);
 
     private final JetStreamPushConsumer jetStreamPushConsumer = spy(new JetStreamPushConsumer(subscriptionDetails, jetStream, connection));
 
@@ -49,7 +41,7 @@ public class JetStreamPushConsumerTest {
     @BeforeEach
     void setup() throws JetStreamApiException, IOException {
         Mockito.when(jetStream.subscribe(any(), any(), any(), any(), eq(false), any())).thenReturn(subscription);
-        Mockito.when(connection.createDispatcher(any())).thenReturn(Mockito.mock(Dispatcher.class));
+        Mockito.when(connection.createDispatcher(any())).thenReturn(dispatcher);
     }
 
     @Test
@@ -57,7 +49,9 @@ public class JetStreamPushConsumerTest {
         PushSubscribeOptions options = jetStreamPushConsumer.buildOptions();
 
         assertNotNull(options);
-        assertEquals("test", options.getDeliverGroup());
+        assertEquals(subscriptionDetails.streamName(), options.getStream());
+        assertEquals(subscriptionDetails.bind(), options.isBind());
+        assertEquals(subscriptionDetails.ordered(), options.isOrdered());
     }
 
     @Test
@@ -102,15 +96,15 @@ public class JetStreamPushConsumerTest {
         jetStreamPushConsumer.start();
         jetStreamPushConsumer.stop(Duration.ZERO);
 
-        Mockito.verify(subscription, times(1)).drain(any());
+        Mockito.verify(dispatcher, times(1)).drain(any());
     }
 
     @Test
-    void stopWhenNotActive() {
+    void stopWhenNotActive() throws InterruptedException {
         Mockito.when(subscription.isActive()).thenReturn(false);
 
         jetStreamPushConsumer.stop(Duration.ZERO);
 
-        Mockito.verify(subscription, times(0)).unsubscribe();
+        Mockito.verify(dispatcher, times(0)).drain(any());
     }
 }
