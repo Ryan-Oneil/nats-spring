@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Configuration
 public class NatsAutoConfig {
@@ -66,9 +67,8 @@ public class NatsAutoConfig {
     }
 
     @Bean
-    @ConditionalOnBean({NatsListenerAnnotationBeanProcessor.class, JetStreamListenerAnnotationBeanProcessor.class})
-    public ConsumerMetrics consumerMetrics(NatsListenerAnnotationBeanProcessor natsListenerAnnotationBeanProcessor,
-        JetStreamListenerAnnotationBeanProcessor jetStreamListenerAnnotationBeanProcessor) {
+    public ConsumerMetrics consumerMetrics(Optional<NatsListenerAnnotationBeanProcessor> natsListenerAnnotationBeanProcessor,
+                                           Optional<JetStreamListenerAnnotationBeanProcessor> jetStreamListenerAnnotationBeanProcessor) {
         return new ConsumerMetrics(natsListenerAnnotationBeanProcessor, jetStreamListenerAnnotationBeanProcessor);
     }
 

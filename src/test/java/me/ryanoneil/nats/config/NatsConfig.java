@@ -1,16 +1,8 @@
 package me.ryanoneil.nats.config;
 
-import io.nats.client.Connection;
-import io.nats.client.JetStream;
-import io.nats.client.JetStreamApiException;
-import io.nats.client.JetStreamManagement;
-import io.nats.client.Nats;
-import io.nats.client.Options;
+import io.nats.client.*;
 import io.nats.client.api.StreamConfiguration;
 import jakarta.annotation.PreDestroy;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import me.ryanoneil.nats.actuator.BrokerHealth;
 import me.ryanoneil.nats.actuator.ConsumerMetrics;
 import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
@@ -19,6 +11,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Configuration
 public class NatsConfig {
@@ -70,8 +67,8 @@ public class NatsConfig {
     }
 
     @Bean
-    public ConsumerMetrics consumerMetrics(NatsListenerAnnotationBeanProcessor natsListenerAnnotationBeanProcessor,
-        JetStreamListenerAnnotationBeanProcessor jetStreamListenerAnnotationBeanProcessor) {
+    public ConsumerMetrics consumerMetrics(Optional<NatsListenerAnnotationBeanProcessor> natsListenerAnnotationBeanProcessor,
+                                           Optional<JetStreamListenerAnnotationBeanProcessor> jetStreamListenerAnnotationBeanProcessor) {
         return new ConsumerMetrics(natsListenerAnnotationBeanProcessor, jetStreamListenerAnnotationBeanProcessor);
     }
 

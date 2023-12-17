@@ -9,23 +9,27 @@ import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 
 @Endpoint(id = "consumers")
 public class ConsumerMetrics {
 
-    private final NatsListenerAnnotationBeanProcessor processor;
+    private final Optional<NatsListenerAnnotationBeanProcessor> processor;
 
-    private final JetStreamListenerAnnotationBeanProcessor jetStreamProcessor;
+    private final Optional<JetStreamListenerAnnotationBeanProcessor> jetStreamProcessor;
 
-    public ConsumerMetrics(NatsListenerAnnotationBeanProcessor processor, JetStreamListenerAnnotationBeanProcessor jetStreamProcessor) {
+    public ConsumerMetrics(Optional<NatsListenerAnnotationBeanProcessor> processor, Optional<JetStreamListenerAnnotationBeanProcessor> jetStreamProcessor) {
         this.processor = processor;
         this.jetStreamProcessor = jetStreamProcessor;
     }
 
     @ReadOperation
     public List<SubscriptionStats> consumers() {
-        List<Consumer> consumers = new ArrayList<>(processor.getConsumers());
-        consumers.addAll(jetStreamProcessor.getConsumers());
+        List<Consumer> consumers = new ArrayList<>();
+
+        processor.ifPresent(natsListenerAnnotationBeanProcessor -> consumers.addAll(natsListenerAnnotationBeanProcessor.getConsumers()));
+        jetStreamProcessor.ifPresent(jetStreamListenerAnnotationBeanProcessor -> consumers.addAll(jetStreamListenerAnnotationBeanProcessor.getConsumers()));
 
         return consumers.stream().map(Consumer::getStats).toList();
     }
