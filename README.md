@@ -38,10 +38,13 @@ Here's how you generally list dependencies:
 
 ## Usage
 
+### Configuration
+
+- nats.url: The url of your nats broker. Can also include authentication.
+- nats.jetstream.enabled: To enable JetStream, defaults to false
+- nats.drainDuration: Time in seconds for the application to wait for consumer drain to complete. Defaults to 0 which will cause the application to wait until full drain.
+
 ### Metrics
-
-Metrics are enabled by default if the Connection & JetStream bean is created.
-
 The endpoint is /actuator/consumers
 
 Example:
@@ -79,6 +82,41 @@ Example:
   "details": {
     "natsBrokerStatus": "CONNECTED"
   }
+}
+````
+
+### Nats Consumer
+
+The Nats listener has the following parameters
+- Subject: Nats subject to listen to.
+- Queue: Nats queue to operate from.
+- threads: amount of consumers to spin up.
+
+Example:
+````
+@NatsListener(subject = "natsRequest")
+public void handleMessage(MyMessageObject message) {
+    System.out.println("Received the following from nats natsRequest: " + message);
+}
+````
+
+### JetStream push Consumer
+
+The JetStream listener has the following parameters
+- Subject: Nats subject to listen to.
+- Queue: Nats queue to operate from.
+- Stream: JetStream operating from.
+- threads: amount of consumers to spin up.
+- bind: if the stream is bound (Refer to NATs documentation).
+- Durable: name of the durable consumer.
+- Name: name of the consumer.
+- Ordered: if the message consumption is ordered.
+
+Example:
+````
+@JetStreamListener(subject = "request", stream = "it")
+public void handleJetStreamMessage(MyMessageObject message) {
+    System.out.println("Received the following from jetstream it.request: " + message);
 }
 ````
 
