@@ -3,21 +3,15 @@ package me.ryanoneil.nats.config;
 import io.nats.client.*;
 import io.nats.client.api.StreamConfiguration;
 import jakarta.annotation.PreDestroy;
-import me.ryanoneil.nats.actuator.BrokerHealth;
-import me.ryanoneil.nats.actuator.ConsumerMetrics;
-import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
-import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
+import me.ryanoneil.nats.sample.DummyListener;
+import me.ryanoneil.nats.sample.MultipleThreadListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
-@Configuration
 public class NatsConfig {
 
     public static final Integer NATS_PORT = 4222;
@@ -52,24 +46,16 @@ public class NatsConfig {
     }
 
     @Bean
-    public NatsListenerAnnotationBeanProcessor natsListenerAnnotationBeanProcessor(Connection connection) {
-        return new NatsListenerAnnotationBeanProcessor(connection, Duration.of(0, ChronoUnit.SECONDS));
+    public DummyListener dummyListener() {
+        return new DummyListener();
     }
 
     @Bean
-    public JetStreamListenerAnnotationBeanProcessor jetStreamListenerAnnotationBeanProcessor(Connection connection, JetStream jetStream) {
-        return new JetStreamListenerAnnotationBeanProcessor(connection, jetStream, Duration.of(0, ChronoUnit.SECONDS));
-    }
-
-    @Bean(name = "broker")
-    public BrokerHealth brokerHealth(Connection connection) {
-        return new BrokerHealth(connection);
-    }
-
-    @Bean
-    public ConsumerMetrics consumerMetrics(Optional<NatsListenerAnnotationBeanProcessor> natsListenerAnnotationBeanProcessor,
-                                           Optional<JetStreamListenerAnnotationBeanProcessor> jetStreamListenerAnnotationBeanProcessor) {
-        return new ConsumerMetrics(natsListenerAnnotationBeanProcessor, jetStreamListenerAnnotationBeanProcessor);
+    @ConditionalOnProperty(
+            value="multi.enabled",
+            havingValue = "true")
+    public MultipleThreadListener multipleThreadListener() {
+        return new MultipleThreadListener();
     }
 
     @PreDestroy

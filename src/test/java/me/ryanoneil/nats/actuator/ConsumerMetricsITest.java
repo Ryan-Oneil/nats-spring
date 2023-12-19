@@ -4,7 +4,6 @@ import io.nats.client.Connection;
 import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.config.NatsConfig;
-import me.ryanoneil.nats.sample.DummyListener;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    classes = {NatsConfig.class, DummyListener.class}, properties = {"management.endpoints.web.exposure.include=*"})
+    classes = {NatsConfig.class}, properties = {"management.endpoints.web.exposure.include=*"})
 @EnableAutoConfiguration
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ConsumerMetricsITest {

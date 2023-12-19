@@ -1,6 +1,6 @@
 package me.ryanoneil.nats.actuator;
 
-import me.ryanoneil.nats.config.NoNatsConfig;
+import me.ryanoneil.nats.config.NatsAutoConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -10,7 +10,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    classes = {NoNatsConfig.class}, properties = {"management.endpoints.web.exposure.include=*"})
+        properties = {"management.endpoints.web.exposure.include=*"}, classes = {NatsAutoConfig.class})
 @EnableAutoConfiguration
 class ConsumerMetricsDisabledITest {
 

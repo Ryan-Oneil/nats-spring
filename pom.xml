@@ -6,7 +6,7 @@
 
   <groupId>me.ryanoneil</groupId>
   <artifactId>nats-spring</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <packaging>jar</packaging>
   <name>nats-spring</name>
   <description>A simple NATs wrapper for Spring boot</description>
