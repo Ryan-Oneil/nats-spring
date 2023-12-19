@@ -19,7 +19,8 @@ import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import static me.ryanoneil.nats.config.NatsConfig.NATS_PORT;
 import static org.springframework.test.util.AssertionErrors.assertNotNull;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "nats.jetstream.enabled=true")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "nats.jetstream.enabled=true",
+        classes = {NatsAutoConfig.class})
 @EnableAutoConfiguration
 public class NatsAutoConfigTest {
 
