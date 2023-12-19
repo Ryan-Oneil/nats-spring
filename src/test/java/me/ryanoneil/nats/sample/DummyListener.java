@@ -3,9 +3,7 @@ package me.ryanoneil.nats.sample;
 import io.nats.client.Message;
 import me.ryanoneil.nats.annotation.JetStreamListener;
 import me.ryanoneil.nats.annotation.NatsListener;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DummyListener {
 
     @NatsListener(subject = "natsRequest")

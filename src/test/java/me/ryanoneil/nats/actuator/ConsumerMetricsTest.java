@@ -2,7 +2,6 @@ package me.ryanoneil.nats.actuator;
 
 import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
 import me.ryanoneil.nats.annotation.NatsListenerAnnotationBeanProcessor;
-import me.ryanoneil.nats.config.NoNatsConfig;
 import me.ryanoneil.nats.consumer.Consumer;
 import me.ryanoneil.nats.model.SubscriptionStats;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest(classes = NoNatsConfig.class)
+@SpringBootTest
 class ConsumerMetricsTest {
 
     @MockBean

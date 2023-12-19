@@ -62,7 +62,7 @@ public class NatsAutoConfig {
 
     @Bean
     @ConditionalOnBean(Connection.class)
-    public HealthIndicator brokerHealth(Connection connection) {
+    public HealthIndicator broker(Connection connection) {
         return new BrokerHealth(connection);
     }
 

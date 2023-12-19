@@ -1,8 +1,5 @@
 package me.ryanoneil.nats.config;
 
-import static me.ryanoneil.nats.config.NatsConfig.NATS_PORT;
-import static org.springframework.test.util.AssertionErrors.assertNotNull;
-
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
 import me.ryanoneil.nats.annotation.JetStreamListenerAnnotationBeanProcessor;
@@ -19,8 +16,10 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    classes = {NatsAutoConfig.class}, properties = "nats.jetstream.enabled=true")
+import static me.ryanoneil.nats.config.NatsConfig.NATS_PORT;
+import static org.springframework.test.util.AssertionErrors.assertNotNull;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "nats.jetstream.enabled=true")
 @EnableAutoConfiguration
 public class NatsAutoConfigTest {
 
@@ -58,7 +57,7 @@ public class NatsAutoConfigTest {
     private JetStreamListenerAnnotationBeanProcessor jetStreamListenerAnnotationBeanProcessor;
 
     @Autowired
-    private HealthIndicator brokerHealth;
+    private HealthIndicator broker;
 
     @Test
     void notNull() {
@@ -66,6 +65,6 @@ public class NatsAutoConfigTest {
         assertNotNull("Object was null", jetStream);
         assertNotNull("Object was null", natsListenerAnnotationBeanProcessor);
         assertNotNull("Object was null", jetStreamListenerAnnotationBeanProcessor);
-        assertNotNull("Object was null", brokerHealth);
+        assertNotNull("Object was null", broker);
     }
 }
